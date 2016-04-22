@@ -1,0 +1,158 @@
+package kr.nomad.mars.dao;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import kr.nomad.mars.dto.Data;
+
+
+public class DataDao {
+	
+	private JdbcTemplate jdbcTemplate;
+	public void setDataSource(DataSource dataSource) {
+	    this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
+	private RowMapper dataMapper = new RowMapper() {
+		public Data mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Data data = new Data();
+			data.setDataSeq(rs.getInt("data_seq"));
+			data.setProjectSeq(rs.getInt("project_seq"));
+			data.setDataTitle(rs.getString("data_title"));
+			data.setDataType(rs.getString("data_type"));
+			data.setUserId(rs.getString("user_id"));
+			data.setDataRegDate(rs.getString("data_reg_date"));
+			data.setDataContents(rs.getString("data_contents"));
+			data.setDataFileName(rs.getString("data_file_name"));
+			return data;
+		}
+	};
+	private RowMapper VdataMapper = new RowMapper() {
+		public Data mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Data data = new Data();
+			data.setDataSeq(rs.getInt("data_seq"));
+			data.setProjectSeq(rs.getInt("project_seq"));
+			data.setDataTitle(rs.getString("data_title"));
+			data.setDataType(rs.getString("data_type"));
+			data.setUserId(rs.getString("user_id"));
+			data.setDataRegDate(rs.getString("data_reg_date"));
+			data.setDataContents(rs.getString("data_contents"));
+			data.setDataFileName(rs.getString("data_file_name"));
+			data.setUserName(rs.getString("user_name"));
+			data.setComapnyName(rs.getString("company_name"));
+			return data;
+		}
+	};
+
+	public void addData(final Data data) {
+		String query = "" +
+				"INSERT INTO T_NF_DATA " +
+				"	( project_seq, data_title, data_type,"
+				+ " user_id, data_reg_date, data_contents,"
+				+ " data_file_name) " +
+				"VALUES " +
+				"	( ?, ?, ?,"
+				+ " ?, getDate(), ?,"
+				+ " ?) ";
+		this.jdbcTemplate.update(query, new Object[] {
+		
+			data.getProjectSeq(),
+			data.getDataTitle(),
+			data.getDataType(),
+			data.getUserId(),
+		
+			data.getDataContents(),
+			data.getDataFileName()
+		});
+	}
+
+	public void deleteData(int data_seq) {
+		String query = "DELETE FROM T_NF_DATA WHERE data_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] { data_seq });
+	}
+
+	public void updateData(Data data) { 
+		String query = "" + 
+				"UPDATE T_NF_DATA SET " +
+				
+				"	project_seq = ?, " +
+				"	data_title = ?, " +
+				"	data_type = ?, " +
+				"	user_id = ?, " +
+			
+				"	data_contents = ?, " +
+				"	data_file_name = ? " +
+				"WHERE data_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] {
+		
+			data.getProjectSeq(),
+			data.getDataTitle(),
+			data.getDataType(),
+			data.getUserId(),
+		
+			data.getDataContents(),
+			data.getDataFileName(),
+			data.getDataSeq()
+		});
+	}
+
+	public Data getData(int data_seq) {
+		String query = "" + 
+				"SELECT * " +
+				"FROM V_NF_DATA " +
+				"WHERE data_seq = ? ";
+		try{
+			return (Data)this.jdbcTemplate.queryForObject(query, new Object[] { data_seq }, this.VdataMapper);
+		}catch(Exception e){
+			return new Data();
+		}
+	}
+
+	public List<Data> getDataList(String dataType,int projectSeq,String keyword,int page, int itemCountPerPage) {
+		String con=" where 1=1 ";
+		
+		if(projectSeq!=0){
+			con+=" and project_seq = "+projectSeq;
+		}
+		if(!dataType.equals("0")){
+			con+=" and data_type = '"+dataType+"'";
+		}
+		if(!keyword.equals("")){
+			con+=" and user_id like '%"+keyword+"%' or data_contents like '%"+keyword+"%' ";
+		}
+		
+		String query = "" 
+				+ "	SELECT * FROM ( "
+				+ "		SELECT  "
+				+ "			ROW_NUMBER() OVER(order by data_reg_date desc) as row_seq, "
+				+ "			A.* "
+				+"  from v_nf_data as A "+con 
+				+ "	) AS a WHERE row_seq BETWEEN (("+page+" - 1) * "+itemCountPerPage+") +1 AND "+page+" * "+itemCountPerPage+" ";
+			
+		return (List<Data>)this.jdbcTemplate.query(query, this.VdataMapper);
+	}
+	public int getDataCount(String dataType,int projectSeq,String keyword) {
+		String con=" where 1=1 ";
+		
+		if(projectSeq!=0){
+			con+=" and project_seq = "+projectSeq;
+		}
+		if(!dataType.equals("0")){
+			con+=" and data_type = '"+dataType+"'";
+		}
+		if(!keyword.equals("")){
+			con+=" and user_id like '%"+keyword+"%' or data_contents like '%"+keyword+"%' ";
+		}
+		String query = "" 
+				+ "	SELECT count(*) FROM  "
+				+"   v_nf_data "+con;
+			
+		return this.jdbcTemplate.queryForInt(query);
+	}
+}

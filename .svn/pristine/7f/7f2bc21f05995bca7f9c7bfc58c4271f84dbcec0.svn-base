@@ -1,0 +1,58 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/m/head.jsp" %>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+	});
+</script>
+
+<style>
+</style>
+
+</head>
+<body>
+
+<form method="post" name="fileEditForm">
+
+<header>
+	<ul>
+		<li class="top-left">
+			<a href="#">
+				<img src="/images/ic_top_back_arrow.png">
+				<span class="top-menu">목록</span>
+			</a>
+		</li>
+		<li class="top-center">
+			리얼체크업
+		</li>
+		<li class="top-right">
+			<button type="button" class="top-menu">등록</button>
+		</li>
+	</ul>
+</header>
+
+<article>
+
+	<textarea name="contents" placeholder="내용을 입력해주세요."></textarea>
+	
+	<div class="file-added">
+		<ul>
+			<li>
+				<img src="/images/ic_attach.png"> index_guide.pptx
+			</li>
+			<li><button type="button" onclick="files.deleteFile(0,'filename');">X</button></li>
+		</ul>
+		<div class="file-btn">
+			<button type="button" onclick="files.addFile()">파일 선택</button>
+		</div>
+	</div>
+
+<%@ include file="/WEB-INF/views/m/m_footer.jsp"  %>
+
+</article>
+
+</form>
+
+</body>
+</html>

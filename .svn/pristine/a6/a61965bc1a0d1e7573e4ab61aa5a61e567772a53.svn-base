@@ -1,0 +1,97 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<script type="text/javascript">
+ 	$(document).ready(function() {
+		
+	 	$.ajax({
+			type:"POST",
+			url:"/admin/menu.go",
+			dataType:"json",
+			
+			success:function(json){
+				var list =json.projectList;
+				var str = '';
+				
+				 for(var i=0;i<list.length;i++){
+					str += ' <ul class="m1"> ';
+					str += ' <li class="menu" id="menu'+list[i].projectSeq+'"> ';
+					str += ' 	<a href="#" onclick="aside.togleSub('+list[i].projectSeq+');"> ';
+					str += ' <dl> ';
+					str += ' <dt class="bullet"> ';
+					str += ' 	<div class="bullet-image"><img src="/images/user.png" style="height:20px;"></div> ';
+					str += ' </dt> ';
+					str += ' <dd class="menu-name"> ';
+					str += ' 	<span>'+list[i].projectName+'</span> ';
+					str += ' </dd> ';
+					str += ' <dd class="arrow"> ';
+					str += ' 	<img src="/images/arrow_bottom.png"> ';
+					str += ' </dd> ';
+					str += ' </dl> ';
+					str += ' </a> ';
+					str += ' </dl> ';
+					str += ' <ul class="m2" id="u'+list[i].projectSeq+'"> ';
+					str += ' <li id="menu-sub'+list[i].projectSeq+'1"> ';
+					str += ' 	<a href="/admin/user/user.go"> ';
+					str += ' 		<dl> ';
+					str += ' 				<dt class="bullet"> ';
+					str += ' 					<div class="bullet-image"><img src="/images/arrow_right.png"></div> ';
+					str += ' 				</dt> ';
+					str += ' 				<dd class="menu-name"> ';
+					str += ' 					<span>프로젝트 진행 사항</span> ';
+					str += ' 					</dd> ';
+					str += ' 			</dl> ';
+					str += ' 		</a> ';
+					str += ' 		</li> ';
+					str += ' <li id="menu-sub'+list[i].projectSeq+'2"> ';
+					str += ' 	<a href="/admin/user/user.go"> ';
+					str += ' 		<dl> ';
+					str += ' 			<dt class="bullet"> ';
+					str += ' 					<div class="bullet-image"><img src="/images/arrow_right.png"></div> ';
+					str += ' 				</dt> ';
+					str += ' 				<dd class="menu-name"> ';
+					str += ' 							<span>버그/요청 게시판</span> ';
+					str += ' 					</dd> ';
+					str += ' 					</dl> ';
+					str += ' 					</a> ';
+					str += ' </li> ';
+					str += ' <li id="menu-sub$'+list[i].projectSeq+'3"> ';
+					str += ' 	<a href="/admin/user/user.go"> ';
+					str += '		<dl> ';
+					str += '			<dt class="bullet"> ';
+					str += '				<div class="bullet-image"><img src="/images/arrow_right.png"></div> ';
+					str += '				</dt> ';
+					str += '				<dd class="menu-name"> ';
+					str += '					<span>자료실</span> ';
+					str += '				</dd> ';
+					str += '			</dl> ';
+					str += '		</a> ';
+					str += '		</li> ';
+					str += '	<li id="menu-sub$'+list[i].projectSeq+'4"> ';
+					str += '		<a href="/admin/user/user.go"> ';
+					str += '			<dl> ';
+					str += '	<dt class="bullet"> ';
+					str += '	<div class="bullet-image"><img src="/images/arrow_right.png"></div> ';
+					str += '				</dt> ';
+					str += '				<dd class="menu-name"> ';
+					str += '					<span>프로젝트 담당자</span> ';
+					str += '				</dd> ';
+					str += '			</dl> ';
+					str += '		</a> ';
+					str += '		</li> ';
+					str += '	</ul> ';
+					str += '	</ul> ';
+		
+					
+																	 
+					 
+				 }
+				$("#nav").html(str);	
+			}
+		}); 
+	}); 
+</script>
+
+		<aside id="nav">
+			
+		</aside>

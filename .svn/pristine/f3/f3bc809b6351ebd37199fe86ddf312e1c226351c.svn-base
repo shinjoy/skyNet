@@ -1,0 +1,20 @@
+@import url('http://fonts.googleapis.com/earlyaccess/nanumgothic.css');
+
+/* Font-Face */
+@font-face{
+	font-family:'나눔바른고딕',NanumBarunGothic;
+	src:url('/css/font/NanumBarunGothic.eot');
+	src:url('/css/font/NanumBarunGothic.eot?#iefix') format('embedded-opentype'),
+	url('/css/font/NanumBarunGothic.woff') format('woff'),
+	url('/css/font/NanumBarunGothic.ttf') format('truetype');
+	src:local(※), url('/css/font/NanumBarunGothic.svg#NanumBarunGothic' format('svg')
+}
+
+@font-face{
+	font-family:'나눔바른고딕볼드',NanumBarunGothicBold;
+	src:url('/css/font/NanumBarunGothicBold.eot');
+	src:url('/css/font/NanumBarunGothicBold.eot?#iefix') format('embedded-opentype'),
+	url('/css/font/NanumBarunGothicBold.woff') format('woff'),
+	url('/css/font/NanumBarunGothicBold.ttf') format('truetype');
+	src:local(※), url('/css/font/NanumBarunGothicBold.svg#NanumBarunGothicBold' format('svg')
+}

@@ -1,0 +1,14 @@
+# config.properties
+mssql.driverClassName = net.sourceforge.jtds.jdbc.Driver
+
+
+
+mssql.url = jdbc:jtds:sqlserver://218.234.17.222:1433;tds=8.0;lastupdatecount=true;DatabaseName=SkyNet
+mssql.username = mars
+mssql.password = shak05em03
+
+file.maxSize = 1000
+file.root = D:/05_WorkFiles/SkyNet/files
+
+page.itemCountPerPage = 30
+page.pageCountPerPaging = 10

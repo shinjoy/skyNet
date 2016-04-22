@@ -1,0 +1,473 @@
+var projectAdmin = {
+	getList : function(frm,page) {
+		var param = {
+			page:page,
+			sort:frm.sort.value,
+			colName:frm.colName.value,
+			startDay:frm.startDate.value,
+			endDay:frm.endDate.value,
+			keyword:frm.keyword.value,
+			//status:frm.status.value,
+			companySeq:frm.companySeq.value
+		};
+
+		$.ajax({
+			type:"POST",
+			url:"/admin/project_list.go",
+			data:param,
+			dataType:"json",
+		
+			success:function(json) {
+				var list = json.list;
+				var str = '';
+				if (list.length > 0) {
+					
+					for(var i=0;i<list.length;i++){
+						str+= ' <tr onclick="projectAdmin.projectEditGo('+list[i].projectSeq+','+list[i].companySeq+');"> ';
+						str+= ' 	<td class="text-left"> '+list[i].companyName + '</td>';
+						str+= ' 	<td class="text-left"> '+list[i].projectName + '</td>';
+						str+= ' 	<td> '+list[i].projectStartDay + '</td>';
+						str+= ' 	<td> '+list[i].projectEndDay + '</td>';
+						str+= ' 	<td> '+list[i].projectStatusTxt + '</td>';
+						str+= ' 	<td> '+list[i].projectRegDate.substring(0,10) + '</td>';
+						str+= ' </tr> ';
+					}
+					
+				} else {
+					str = '<tr><td class="list-cell empty">프로젝트가 없습니다.</td></tr>';
+				}
+				$(".contents-list").html(str);
+				$(".paging-block").html(json.paging);
+			},
+			error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+			},
+			complete:function(data) {
+				console.log("complete:",data);
+			}
+		});
+		return false;
+	},
+	listOrder : function(colname, sort) {
+		dataForm.colName.value = colname;
+		dataForm.sort.value = sort;
+		projectAdmin.getList(dataForm, 1);
+		var cSort ="asc";
+		var point ="▼";
+		if(sort=='asc'){
+			cSort="desc";
+			point="▲";
+		}
+		
+		var str = "<button type='button' class='"+colname+"' onclick=\"projectAdmin.listOrder('"+colname+"','"+cSort+"');\">"+point+"</button>";
+		$("#"+colname).html(str);
+		
+		
+	},
+	projectEditGo : function(seq,companySeq){
+		
+		document.location.href='/admin/admin/project_edit.go?companySeq='+companySeq+'&projectSeq='+seq;
+	},
+	projectEdit :function(frm,page){
+		var param = {
+			companySeq:frm.companySeq1.value,
+			projectSeq:frm.projectSeq.value,
+			page:page
+		};
+
+		$.ajax({
+			type:"POST",
+			url:"/admin/project_edit.go",
+			data:param,
+			dataType:"json",
+		
+			success:function(json) {
+				var project = json.project;
+				var list = json.adminList;
+				var userlist = json.userList;
+				var companylist = json.companyList;
+				var todolist = json.todoList;
+
+				$(".projectSeq").val(project.projectSeq);
+
+
+				// 프로젝트명
+				$("#projectName").val(project.projectName);
+
+				// 시작 / 종료일
+				$("#projectStartDay").val(project.projectStartDay);
+				$("#projectEndDay").val(project.projectEndDay);
+
+				// 프로젝트내용
+				$("#projectComment").val(project.projectComment);
+				
+				// 프로젝트상태
+				$("#projectStatus"+project.projectStatus).attr("selected","selected");
+
+				// 개발환경
+				var projectInfo = "";
+				if(project.projectSeq>0){
+					projectInfo = project.projectInfo;
+				}else{
+					projectInfo+='서버정보 :  \n';
+					projectInfo+='DB정보 :  \n';
+					projectInfo+='구글계정 :  \n';
+					projectInfo+='애플계정 :  \n';
+					projectInfo+='웹사이트 주소 :  \n';
+					projectInfo+='도메인관리 :  \n';
+				}	
+				$("#projectInfo").val(project.projectInfo);
+
+				// 프로젝트 삭제 버튼
+				if(project.projectSeq != 0){
+					$("#projectDeleteBtn").css("display","none");
+				}
+
+				// 업체 선택
+				projectAdmin.renderSelectorCompany(companylist, json.companySeq);
+
+				// 개발자 리스트
+				projectAdmin.renderWorkerList(list, userlist);
+			
+				// 일정관리
+				projectAdmin.renderScheduleList(project, todolist, json.paging);
+
+				// 개발자 SELECT
+				projectAdmin.renderSelectorWorker(userlist);
+			},
+			error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+			},
+			complete:function(data) {
+				console.log("complete:",data);
+			}
+		});
+		return false;
+	},
+
+	renderWorkerList : function(list, userlist) {
+		var workerList = '';
+		if(list.length>0){
+			for(var i=0;i<list.length;i++){
+				workerList+='	<form method="post" onsubmit="return projectAdmin.AdminEdit(this); return false;">';
+				workerList+='	<input type="hidden" name="projectAdminSeq" value="'+list[i].projectAdminSeq+'" > ';
+				workerList+='	<input type="hidden" name="projectSeq" value="'+list[i].projectSeq+'" > ';
+				workerList+='	<tr> ';
+				workerList+='		<td> ';
+				workerList+='			<select name="projectAdminPart"> ';
+				workerList+='				<option value="ANDROID" '+(list[i].projectAdminPart=="ANDROID" ? 'selected="selected"' : '')+'> ANDROID </option> ';
+				workerList+='				<option value="IOS" ' +(list[i].projectAdminPart=="IOS" ? 'selected="selected"' : '')+'> IOS </option> ';
+				workerList+='				<option value="WEB" '+(list[i].projectAdminPart=="WEB" ? 'selected="selected"' : '')+'> WEB </option> ';
+				workerList+='				<option value="SERVER" ' +(list[i].projectAdminPart=="SERVER" ? 'selected="selected"' : '')+'> SERVER </option> ';
+				workerList+='				<option value="DESIGN" ' +(list[i].projectAdminPart=="DESIGN" ? 'selected="selected"' : '')+'> DESIGN </option> ';
+				workerList+='			</select>';
+				workerList+='		</td> ';
+				workerList+='		<td> ';
+				if(userlist.length>0){
+					workerList+='		<select name="userId">';
+					for(var k=0;k<userlist.length;k++){
+						workerList+='	 	<option value="'+userlist[k].userId+'"'+(list[i].userId==userlist[k].userId ? 'selected="selected"' : '')+' >'+userlist[k].userName+' </option> ';
+					}
+					workerList+='		</select>';
+				}	
+				workerList+='		</td>';
+				workerList+='		<td> ';
+				workerList+='  			<button type="submit" class="btn">수정</button>';	
+				workerList+='      		<button type="button" class="btn" onclick="projectAdmin.AdminDelete('+list[i].projectAdminSeq+','+list[i].projectSeq+');">삭제</button>';	
+				workerList+='		</td>';
+				workerList+='		<td>&nbsp;</td>';
+				workerList+='	</tr> ';
+				workerList+='	</form>';
+			}
+		}else{
+			workerList+='<tr><td colspan="3" class="empty">등록된 개발자가 없습니다.</td></tr>';
+		}
+		$(".worker-list").html(workerList);
+	},
+
+	renderScheduleList : function(project, todolist, paging) {
+		var scheduleList = '';
+		if(todolist.length>0){
+			for(var i=0;i<todolist.length;i++){
+				scheduleList+='	<form method="post"  onsubmit="return projectAdmin.TodoEdit(this); return false;">';
+				scheduleList+='	<input type="hidden" name="projectSeq" value="'+project.projectSeq+'" > ';
+				scheduleList+='	<input type="hidden" name="todoSeq" value="'+todolist[i].todoSeq+'" > ';
+				scheduleList+='	<tr>';
+				scheduleList+='		<td> ';
+				scheduleList+='			<select name="todoPart"> ';
+				scheduleList+=' 			<option value="ANDROID" '+(todolist[i].todoPart=="ANDROID" ? 'selected="selected"' : '')+'> ANDROID </option> ';
+				scheduleList+=' 			<option value="IOS" ' +(todolist[i].todoPart=="IOS" ? 'selected="selected"' : '')+'> IOS </option> ';
+				scheduleList+=' 			<option value="WEB" '+(todolist[i].todoPart=="WEB" ? 'selected="selected"' : '')+'> WEB </option> ';
+				scheduleList+=' 			<option value="SERVER" ' +(todolist[i].todoPart=="SERVER" ? 'selected="selected"' : '')+'> SERVER </option> ';
+				scheduleList+=' 			<option value="DESIGN" ' +(todolist[i].todoPart=="DESIGN" ? 'selected="selected"' : '')+'> DESIGN </option> ';
+				scheduleList+='			</select>';
+				scheduleList+=' 	 </td> ';
+				scheduleList+=' 	<td> ';
+				scheduleList+='			<select name="userId" class="workerSelect"> ';
+				scheduleList+='			</select>';
+				scheduleList+='		</td> ';
+				scheduleList+=' 	<td><input type="text" class="itext" name="module" value="'+todolist[i].module+'" ></td>';
+				scheduleList+=' 	<td><input type="text" class="itext" name="process" value="'+todolist[i].process+'" ></td>';
+				scheduleList+=' 	<td><input type="text" class="itext" name="todo"  value="'+todolist[i].todo+'">  </td>';
+				scheduleList+='		<td><input type="text" class="itext" name="todoComment"  value="'+todolist[i].todoComment+'"></td>';
+				scheduleList+='		<td><input type="text" class="itext" name="todoStartday" class="itext datepicker" placeholder="시작일" style="width:80px;" value="'+todolist[i].todoStartday+'"> </td>';
+				scheduleList+='		<td><input type="text" class="itext" name="todoEndDay" class="itext datepicker" placeholder="종료일" style="width:80px;"  value="'+todolist[i].todoEndday+'"> </td>';
+				scheduleList+=' 	<td><input type="hidden" name="todoStatus" value="'+todolist[i].todoStatus+'" >'+todolist[i].todoStatusTxt+' </td>';
+				scheduleList+='		<td>'+todolist[i].todoFinishday+' </td>';
+				scheduleList+=' 	<td>';
+				scheduleList+=' 		<button type="submit" class="btn">수정</button>';
+				scheduleList+=' 		<button type="button" class="btn" onclick="projectAdmin.deleteTodo('+todolist[i].todoSeq+','+todolist[i].projectSeq+')">삭제</button>';
+				scheduleList+=' 	</td>';
+				scheduleList+=' </tr>';
+				scheduleList+=' </form>';
+			}
+		}else{
+			scheduleList+='<tr><td colspan="10" class="empty">등록된 일정이 없습니다.</td></tr>';
+		}
+		$(".scheduleList").html(scheduleList);
+		$(".paging-block").html(paging);
+	},
+
+	renderSelectorCompany : function(companylist, companySeq) {
+		var companySelector = '<option value="">업체선택</option>';
+		for(var i=0;i<companylist.length;i++){
+			if(companylist[i].companySeq==companySeq){
+				companySelector +='<option value="'+companylist[i].companySeq+'" selected="selected"> '+companylist[i].companyName+'</option> ';
+			} else {
+				companySelector +='<option value="'+companylist[i].companySeq+'"> '+companylist[i].companyName+'</option> ';
+			}
+		}
+		$("#companySelector").html(companySelector);
+	},
+
+	renderSelectorWorker : function(userlist) {
+		var workerSelector = '<option value="">개발자선택</option>';
+		if(userlist.length>0){
+			for(var i=0;i<userlist.length;i++){
+				workerSelector+=' 	<option value="'+userlist[i].userId+'"> '+userlist[i].userName+' </option> ';
+			}
+		}
+		$(".workerSelect").html(workerSelector);
+	},
+
+	projectEditDo : function(frm){
+		var param = {
+			 companySeq : frm.companySeq.value,
+			 projectSeq : frm.projectSeq.value,
+			 projectName : frm.projectName.value,
+			 projectComment : frm.projectComment.value,
+			 projectStartDay : frm.projectStartDay.value,
+			 projectEndDay : frm.projectEndDay.value,
+			 projectInfo : frm.projectInfo.value,
+			 projectStatus :frm.projectStatus.value
+		};
+		$.ajax({
+		    type:"POST",
+		    url:"/admin/project_edit_do.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+		    	alert(json.message);
+		    	if(json.result){
+		    	
+		    		document.location.href='/admin/admin/project_edit.go?companySeq='+frm.companySeq.value+'&projectSeq='+json.seq;
+		    	}
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+		
+	},
+	TodoEdit : function(frm){
+		if(frm.projectSeq.value>0){
+			if(frm.userId.value==''){
+				alert("담당자를 등록해주세요.");
+				return false;
+			}else if(frm.todoStartday.value==''||frm.todoEndDay.value==''){
+				alert("날짜를 선택해주세요.");
+				return false;
+			}else{
+				var param = {
+						 todoSeq : frm.todoSeq.value,
+						 projectSeq : frm.projectSeq.value,
+						 module  : frm.module.value,
+						 process : frm.process.value,
+						 todo : frm.todo.value,
+						 todoPart : frm.todoPart.value,
+						 todoStartday : frm.todoStartday.value,
+						 todoEndday : frm.todoEndDay.value,
+						 userId : frm.userId.value,
+						 //todoFinishday : frm.todoFinishday.value,
+						 todoStatus : frm.todoStatus.value,
+						 todoComment : frm.todoComment.value
+						 
+				};
+			
+				
+				$.ajax({
+				    type:"POST",
+				    url:"/admin/project_todo_edit.go",
+					data:param,
+				    dataType:"json",
+				
+				    success:function(json) {
+				    	alert(json.message);
+				    	if(json.result){
+				    	
+				    		document.location.href='/admin/admin/project_edit.go?companySeq='+dataForm.companySeq.value+'&projectSeq='+frm.projectSeq.value;
+				    	}
+						
+				    },
+				    error:function(xhr, status, error) {
+						console.log("err:",xhr, status, error);
+				    },
+				    complete:function(data) {
+						console.log("complete:",data);
+				    }
+				});
+			}
+		}else{
+			alert("프로젝트를 등록해주세요.");
+		}
+		return false;
+		
+	},
+	
+	deleteProject :function(seq){
+		if(confirm("삭제하시겠습니까?")){
+			var param = {
+				
+					 projectSeq : seq
+			};
+		
+			
+			$.ajax({
+			    type:"POST",
+			    url:"/admin/project_delete.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+			    	if(json.result){
+			    		
+			    		document.location.href='/admin/admin/project_list.go?companySeq=0';
+			    	}
+					
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+		}
+		return false;
+		
+	},
+	AdminEdit : function(frm){
+		if(frm.projectSeq.value>0){
+			var param = {
+					 projectAdminSeq : frm.projectAdminSeq.value,
+					 projectSeq : frm.projectSeq.value,
+					 userId : frm.userId.value,
+					 projectAdminPart : frm.projectAdminPart.value
+			};
+		
+			
+			$.ajax({
+			    type:"POST",
+			    url:"/admin/project_admin_edit_do.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+			    	if(json.result){
+			    		
+			    		document.location.href='/admin/admin/project_edit.go?companySeq='+dataForm.companySeq.value+'&projectSeq='+frm.projectSeq.value;
+			    	}
+					
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+		}else{
+			alert("프로젝트를 등록해주세요.");
+			return false;
+		}
+		return false;
+	},
+	AdminDelete : function(projectAdminSeq,projectSeq){
+		
+		var param = {
+				 projectAdminSeq : projectAdminSeq
+				
+				
+		};
+	
+		
+		$.ajax({
+		    type:"POST",
+		    url:"/admin/project_admin_edit_do.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+		    	if(json.result){
+		    		
+		    		document.location.href='/admin/admin/project_edit.go?companySeq='+dataForm.companySeq.value+'&projectSeq='+projectSeq;
+		    	}
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+	},
+	deleteTodo : function(todoSeq,projectSeq){
+		
+		var param = {
+				todoSeq : todoSeq
+				
+				
+		};
+	
+		
+		$.ajax({
+		    type:"POST",
+		    url:"/admin/project_todo_delete.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+		    	if(json.result){
+		    		
+		    		document.location.href='/admin/admin/project_edit.go?companySeq='+dataForm.companySeq.value+'&projectSeq='+projectSeq;
+		    	}
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+	}
+};

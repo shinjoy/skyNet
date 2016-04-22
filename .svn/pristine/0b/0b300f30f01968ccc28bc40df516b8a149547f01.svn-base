@@ -1,0 +1,91 @@
+package kr.nomad.mars.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import kr.nomad.mars.dto.Company;
+
+public class CompanyDao {
+
+	private JdbcTemplate jdbcTemplate;
+	public void setDataSource(DataSource dataSource) {
+	    this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
+	private RowMapper companyMapper = new RowMapper() {
+		public Company mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Company company = new Company();
+			company.setCompanySeq(rs.getInt("company_seq"));
+			company.setCompanyName(rs.getString("company_name"));
+			company.setCompanyComment(rs.getString("company_comment"));
+			return company;
+		}
+	};
+
+	public void addCompany(final Company company) {
+		String query = "" +
+				"INSERT INTO T_NF_COMPANY " +
+				"	( company_name, company_comment) " +
+				"VALUES " +
+				"	( ?, ?) ";
+		this.jdbcTemplate.update(query, new Object[] {
+		
+			company.getCompanyName(),
+			company.getCompanyComment()
+		});
+	}
+
+	public void deleteCompany(int company_seq) {
+		String query = "DELETE FROM T_NF_COMPANY WHERE company_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] { company_seq });
+	}
+
+	public void updateCompany(Company company) { 
+		String query = "" + 
+				"UPDATE T_NF_COMPANY SET " +
+				
+				"	company_name = ?, " +
+				"	company_comment = ? " +
+				"WHERE company_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] {
+		
+			company.getCompanyName(),
+			company.getCompanyComment(),
+			company.getCompanySeq()
+		});
+	}
+
+	public Company getCompany(int company_seq) {
+		String query = "" + 
+				"SELECT * " +
+				"FROM T_NF_COMPANY " +
+				"WHERE company_seq = ? ";
+		try{
+			return (Company)this.jdbcTemplate.queryForObject(query, new Object[] { company_seq }, this.companyMapper);
+		}catch(Exception e){
+			return new Company();
+		}
+	}
+
+	public List<Company> getCompanyList(int page, int itemCountPerPage) {
+		String query = "" +
+				"SELECT TOP "+ itemCountPerPage +" company_seq, company_name, company_comment " +
+				"FROM T_NF_COMPANY " +
+				"WHERE company_seq <= ( " +
+				"	SELECT MIN(company_seq) " +
+				"	FROM ( " +
+				"		SELECT TOP "+ ((page-1) * itemCountPerPage + 1) +" company_seq " +
+				"		FROM T_NF_COMPANY " +
+				"		ORDER BY company_seq DESC " +
+				"	) AS A) " +
+				"ORDER BY company_seq DESC";
+		return (List<Company>)this.jdbcTemplate.query(query, this.companyMapper);
+	}
+}

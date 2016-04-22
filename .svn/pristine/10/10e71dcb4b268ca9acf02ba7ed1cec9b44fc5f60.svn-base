@@ -1,0 +1,11 @@
+var util = {
+	getPhoto : function() {
+		
+	},
+	getCamera : function() {
+		
+	},
+	getMovie : function() {
+		
+	}
+};

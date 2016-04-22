@@ -1,0 +1,98 @@
+package kr.nomad.mars.dto;
+
+public class Bbs {
+	
+	int bbsSeq = 0;
+	String bbsType = "";
+	String bbsType2 = "";
+	int projectSeq = 0;
+	String bbsTitle = "";
+	int answerStatus = 0;
+	String bbsContents = "";
+	int sendSms = 0;
+	String userId = "";
+	String bbsRegDate = "";
+	
+	///View
+	String userName="";
+	String companyName="";
+	
+	
+	
+	public String getCompanyName() {
+		return companyName;
+	}
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public int getBbsSeq() {
+		return bbsSeq;
+	}
+	public void setBbsSeq(int bbsSeq) {
+		this.bbsSeq = bbsSeq;
+	}
+	public String getBbsType() {
+		return bbsType;
+	}
+	public void setBbsType(String bbsType) {
+		this.bbsType = bbsType;
+	}
+	public String getBbsType2() {
+		return bbsType2;
+	}
+	public void setBbsType2(String bbsType2) {
+		this.bbsType2 = bbsType2;
+	}
+	public int getProjectSeq() {
+		return projectSeq;
+	}
+	public void setProjectSeq(int projectSeq) {
+		this.projectSeq = projectSeq;
+	}
+	
+	public String getBbsTitle() {
+		return bbsTitle;
+	}
+	public void setBbsTitle(String bbsTitle) {
+		this.bbsTitle = bbsTitle;
+	}
+	public int getAnswerStatus() {
+		return answerStatus;
+	}
+	public void setAnswerStatus(int answerStatus) {
+		this.answerStatus = answerStatus;
+	}
+	public String getBbsContents() {
+		return bbsContents;
+	}
+	public void setBbsContents(String bbsContents) {
+		this.bbsContents = bbsContents;
+	}
+	public int getSendSms() {
+		return sendSms;
+	}
+	public void setSendSms(int sendSms) {
+		this.sendSms = sendSms;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	public String getBbsRegDate() {
+		return bbsRegDate;
+	}
+	public void setBbsRegDate(String bbsRegDate) {
+		this.bbsRegDate = bbsRegDate;
+	}
+
+	
+
+}

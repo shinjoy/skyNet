@@ -1,0 +1,76 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/m/head.jsp" %>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		bbs.bbsedit(bbsEditForm);
+		
+		var options = {
+			//target :		'#user-join-result',
+			beforeSubmit :	bbs.formCheck,
+			success :		bbs.formSuccess
+		};
+		$('#bbsEditForm').ajaxForm(options);
+	});
+</script>
+
+<style>
+</style>
+
+</head>
+<body>
+
+<form method="post" name="bbsEditForm" enctype="multipart/form-data" action="/proc/photo_upload.go">
+<input type="hidden" name="bbsSeq" value="${bbsSeq}">
+<input type="hidden" name="path" value="bbs">
+<input type="hidden" name="projectSeq" value="${projectSeq}">
+<input type="hidden" name="idx" value="0">
+<header>
+	<ul>
+		<li class="top-left">
+			<a href="#">
+				<img src="/images/ic_top_back_arrow.png">
+				<span class="top-menu">목록</span>
+			</a>
+		</li>
+		<li class="top-center">
+			리얼체크업
+		</li>
+		<li class="top-right">
+			<button type="button" class="top-menu">등록</button>
+		</li>
+	</ul>
+</header>
+
+<article>
+	<ul class="bbs-edit-box">
+		<li>
+			<dl class="bbsEdit">
+			
+				<p class="file-add">
+				</p>
+			</dl>
+		</li>
+	</ul>
+	
+	<ul class="bbs-tools">
+		<li><button type="button" onclick="util.getPhoto();"><img src="/images/btn_picture.png"></button></li>
+		<li><button type="button" onclick="util.getCamera();"><img src="/images/btn_camera.png"></button></li>
+		<li><button type="button" onclick="util.getMovie();"><img src="/images/btn_movie.png"></button></li>
+		<li>
+			<input type="file" name="filename" class="file" onchange="document.getElementById('upload-btn').click();" style="cursor:pointer;">
+			<button type="submit" id="upload-btn" class="hidden-submit-btn">a</button>
+		
+		</li>
+		
+	</ul>
+
+<%@ include file="/WEB-INF/views/m/m_footer.jsp"  %>
+
+</article>
+
+</form>
+
+</body>
+</html>

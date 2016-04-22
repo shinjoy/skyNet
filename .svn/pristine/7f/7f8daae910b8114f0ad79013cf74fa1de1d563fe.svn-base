@@ -1,0 +1,286 @@
+var bbs = {
+	getList : function(frm,page) {
+		var param = {
+				bbsType:frm.bbsType.value,//1요청2버그
+				bbsType2:frm.bbsType2.value,//빈값 둘다,0전체 1내부공개
+				projectSeq:frm.projectSeq.value,
+				page:page,
+				sort:frm.sort.value,
+				colName:frm.colName.value,
+				keyword:frm.keyword.value,
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/proc/bbs_list.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+					var list = json.list;
+					frm.bbsType.value = json.bbsType;
+					frm.projectSeq.value = json.projectSeq;
+					var str = ' <li> ';
+					if (list.length > 0) {
+						for(var i=0;i<list.length;i++){
+							str+='	<dl class="bbs"> ';
+							str+='		<dt><img src="/images/ic_list_step_04.png"></dt>';
+							str+='			<dd> ';
+							str+='				<p class="contents" onclick="link.go(\'/m/bbs_view.go?bbsSeq='+list[i].bbsSeq+'&page=1\');">['+list[i].statusTxt+'|'+list[i].bbsTypeTxt+']'+list[i].bbsTitle+'</p> ';
+							str+='				<p class="info">'+list[i].userName+' | '+list[i].bbsRegDate.substr(0,10)+'</p> ';
+							str+='			</dd> ';
+							str+='	</dl> ';
+						}
+						str+= ' </li> ';
+						
+					} else {
+						str = '<li class="list-cell empty">검색된 게시글이 없습니다.</li>';
+					}
+			        $(".bbs-list").html(str);
+			        $(".paging-block").html(json.paging);
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+	},
+	view : function(frm,page) {
+		var param = {
+				bbsSeq:frm.bbsSeq.value,
+				page:page,
+			};
+			
+
+			$.ajax({
+			    type:"POST",
+			    url:"/proc/bbs_view.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+					var bbs = json.bbs;
+					var commentlist = json.list;
+					var fileList = json.fileList;
+					//frm.bbsType.value = json.bbsType;
+					var str = ' <dt><img src="/images/ic_list_step_04.png"></dt> ';
+					str+=' <dd> ';
+					
+					str+='	<p class="contents">['+bbs.statusTxt+'|'+bbs.bbsTypeTxt+']'+bbs.bbsTitle+'</p> ';
+					str+='	<p class="images"> ';
+					if(fileList.length >0){
+						for(var i =0;i<fileList.length;i++){
+							str+='	<img src="'+fileList[i].fileName+'"><br> ';
+						}
+					}
+					str+='	</p> ';
+					str+='	<p class="info">'+bbs.userName+' | '+bbs.bbsRegDate.substr(0,10)+'</p> ';
+					str+='	<p >'+bbs.bbsContents+'</p> ';
+					str+='	<div class="bbs-menu"> ';
+					str+='		<a href="javascript:bbs.menu(0);"><img src="/images/ic_3spot_etc.png"></a> ';
+					str+='	</div> ';
+					str+='	</dd> ';
+					
+					var commentstr='';	
+			        if(commentlist.length>0){
+			        	for(var i=0;i<commentlist.length;i++){
+			        		commentstr+=' <li> ';
+			        		commentstr+=' <dl class="bbs"> ';
+			        		commentstr+='	 <dt><img src="/images/ic_reply.png"></dt> ';
+			        		commentstr+='	 <dd> ';
+			        		commentstr+='		<p class="contents">['+commentlist[i].rAnswerStatusTxt+']</p> ';
+			        		commentstr+='		<p class="info">'+commentlist[i].userName+' | '+commentlist[i].regDate+'</p> ';
+			        		commentstr+='		<p>'+commentlist[i].bbsContents+'</p> ';
+			        		commentstr+='	 </dd> ';
+			        		commentstr+='	</dl> ';
+			        		commentstr+=' </li> ';
+			        	}
+			        }else{
+			        	commentstr = '<li class="list-cell empty">댓글이 없습니다.</li>';
+			        }
+					
+					
+					
+					$(".bbs").html(str);
+					$(".comment-list").html(commentstr);
+			        $(".paging-block").html(json.paging);
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+		
+		
+	},
+	bbsedit : function(frm) {
+		var param = {
+				bbsSeq:frm.bbsSeq.value,
+				projectSeq:frm.projectSeq.value,
+			
+			};
+			
+
+			$.ajax({
+			    type:"POST",
+			    url:"/proc/bbs_edit.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+			    	var bbs = json.bbs;
+				
+					var fileList = json.fileList;
+					frm.bbsType.value = json.bbsType;
+					
+					var str = ' ';
+					str+='<ul class="tab tab2"> ';
+					str+='	<select> ';
+					str+='		<option value="1">요청</option> ';
+					str+='		<option value="1">버그</option> ';
+					str+='	</select> ';
+					str+='</ul> ';
+					
+					str+=' <dd> ';
+					
+					str+='	<p class="bbsTitle"> ';
+					str+='		<input type="bbsTitle" value='+bbs.bbsTitle+'> ';
+					str+='	</p> ';
+					str+='	<p class="contents"> ';
+					str+='		<textarea name="contents" placeholder="내용을 입력해주세요.">'+bbs.contents+'</textarea> ';
+					str+='	</p> ';
+					var photostr=' ';
+					if(filieList.length >0){
+						for(var i =0;i<fileList.length;i++){
+							photostr+='	<p id="img_'+i+'">';
+							photostr+='		<input type="hidden" name="photo" value="'+fileList[i].fileName+'">';
+							photostr+='		'+fileList[i].fileName+' ';
+							photostr+='		<button type="button" class="file-delete" onclick="bbs.fileDelete('+fileList[i].fileSeq+','+fileList[i].bbsSeq+',\''+fileList[i].fileName+'\,'+i+');">X</button><br> ';
+							photostr+=' </p> ';
+						}
+					}
+					str+='	</p> ';
+				
+					str+='	</dd> ';
+				
+					$(".bbsEdit").html(str);
+					$(".file-add").append(photostr);
+			    	
+			    	
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+		
+		
+		
+	},
+	edit : function(frm) {
+		var param = {
+				bbsSeq:frm.bbsSeq.value,
+				bbsCommentSeq:frm.bbsCommentSeq.value,
+				bbsContents:frm.bbsContents.value,
+				commentStatus :frm.commentStatus.value
+			};
+			
+
+			$.ajax({
+			    type:"POST",
+			    url:"/proc/bbs_comment_edit_do.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+			    	alert(json.message);
+			    	if(json.result){
+			    		document.location.reload();
+			    	}
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+		
+		
+		
+	},
+	menu : function(bbsSeq) {
+		
+	},
+	tab : function(frm, tab) {
+		frm.bbsType.value=tab; 
+		bbs.getList(frm, 1);
+	},
+	fileDelete : function(fileSeq,bbsSeq,fileName,num){
+		if(confirm("파일을 삭제하시겠습니까?")) {
+			var param = {
+					fileName : filename,
+					bbsSeq : bbsSeq,
+					fileSeq : fileSeq
+				
+			};
+			$.ajax({
+				type:"POST",
+				url:"/proc/file_delete.go",
+				dataType:"json",
+				data:param,
+				success:function(json){
+				
+					$("#img_"+num).remove();
+				
+				}
+			}); 
+		}
+	},
+	fileupload :function(){
+		var options = {
+				//target :		'#user-join-result',
+				beforeSubmit :	formCheck,
+				success :		formSuccess
+		};
+		
+		$('#bbsEditForm').ajaxForm(options);
+		
+		
+	},
+	formCheck : function() {
+		return true; 
+	},
+	formSuccess : function (responseText, statusText, xhr, $form) {
+		//alert('status: ' + statusText + '\n\nresponseText: \n' + responseText );
+		var idx = 0;
+		if (bbsEditForm.photo != undefined) {
+			idx = bbsEditForm.photo.length + 1;
+		};
+		var json = JSON.parse(responseText);
+		try {
+			if(json.photo!=""){
+				var str = '';
+				str += '<li id="img_'+idx+'">';
+				str += '	'+ json.path +'/'+ json.photo +' ';
+				str += '		<button type="button" class="cancel-btn" onclick="bbs.fileDelete(0,0,\''+ json.path +'/'+ json.photo +'\','+idx+')">X</button>';
+				str += '	</div>';
+				str += '	<input type="hidden" name="photo" value="'+ json.path +'/'+ json.photo +'">';
+				str += '</li>';
+				$(".file-add").append(str);
+			}
+		} catch (e) {
+			pop.openAlert('',json.message); 
+		}
+	}
+};

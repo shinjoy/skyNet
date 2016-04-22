@@ -1,0 +1,197 @@
+package kr.nomad.mars.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import kr.nomad.mars.dto.Todo;
+public class TodoDao {
+	
+	private JdbcTemplate jdbcTemplate;
+	public void setDataSource(DataSource dataSource) {
+	    this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
+	private RowMapper todoMapper = new RowMapper() {
+		public Todo mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Todo todo = new Todo();
+			todo.setTodoSeq(rs.getInt("todo_seq"));
+			todo.setProjectSeq(rs.getInt("project_seq"));
+			todo.setModule(rs.getString("module"));
+			todo.setProcess(rs.getString("process"));
+			todo.setTodo(rs.getString("todo"));
+			todo.setTodoPart(rs.getString("todo_part"));
+			todo.setTodoStartday(rs.getString("todo_startday"));
+			todo.setTodoEndday(rs.getString("todo_endday"));
+			todo.setTodoFinishday(rs.getString("todo_finishday"));
+			todo.setUserId(rs.getString("user_id"));
+			todo.setTodoStatus(rs.getString("todo_status"));
+			todo.setTodoComment(rs.getString("todo_comment"));
+			todo.setTodoRegDate(rs.getString("todo_reg_date"));
+			return todo;
+		}
+	};
+
+	private RowMapper VtodoMapper = new RowMapper() {
+		public Todo mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Todo todo = new Todo();
+			todo.setTodoSeq(rs.getInt("todo_seq"));
+			todo.setProjectSeq(rs.getInt("project_seq"));
+			todo.setModule(rs.getString("module"));
+			todo.setProcess(rs.getString("process"));
+			todo.setTodo(rs.getString("todo"));
+			todo.setTodoPart(rs.getString("todo_part"));
+			todo.setTodoStartday(rs.getString("todo_startday"));
+			todo.setTodoEndday(rs.getString("todo_endday"));
+			todo.setTodoFinishday(rs.getString("todo_finishday"));
+			todo.setUserId(rs.getString("user_id"));
+			todo.setTodoStatus(rs.getString("todo_status"));
+			todo.setTodoComment(rs.getString("todo_comment"));
+			todo.setTodoRegDate(rs.getString("todo_reg_date"));
+			todo.setTodoType(rs.getString("todoType"));
+			return todo;
+		}
+	};
+
+	
+
+	public void addTodo(final Todo todo) {
+		String query = "" +
+				"INSERT INTO T_NF_TODO " +
+				"	( project_seq, module, process, todo,"
+				+ " todo_part, todo_startday, todo_endday,"
+				+ " todo_finishday, user_id, todo_status,"
+				+ " todo_comment, todo_reg_date) " +
+				"VALUES " +
+				"	( ?, ?, ?,?,"
+				+ " ?, ?, ?,"
+				+ " ?, ?, ?,"
+				+ " ?, getDate()) ";
+		this.jdbcTemplate.update(query, new Object[] {
+			
+			todo.getProjectSeq(),
+			todo.getModule(),
+			todo.getProcess(),
+			todo.getTodo(),
+			todo.getTodoPart(),
+			todo.getTodoStartday(),
+			todo.getTodoEndday(),
+			todo.getTodoFinishday(),
+			todo.getUserId(),
+			todo.getTodoStatus(),
+			todo.getTodoComment()
+		});
+	}
+
+	public void deleteTodo(int todo_seq) {
+		String query = "DELETE FROM T_NF_TODO WHERE todo_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] { todo_seq });
+	}
+
+	public void updateTodo(Todo todo) { 
+		String query = "" + 
+				"UPDATE T_NF_TODO SET " +
+			
+				"	project_seq = ?, " +
+				"	module = ?, " +
+				"	process = ?, " +
+				"	todo = ?, " +
+				"	todo_part = ?, " +
+				"	todo_startday = ?, " +
+				"	todo_endday = ?, " +
+				"	todo_finishday = ?, " +
+				"	user_id = ?, " +
+				"	todo_status = ?, " +
+				"	todo_comment = ? " +
+			
+				"WHERE todo_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] {
+		
+			todo.getProjectSeq(),
+			todo.getModule(),
+			todo.getProcess(),
+			todo.getTodo(),
+			todo.getTodoPart(),
+			todo.getTodoStartday(),
+			todo.getTodoEndday(),
+			todo.getTodoFinishday(),
+			todo.getUserId(),
+			todo.getTodoStatus(),
+			todo.getTodoComment(),
+			todo.getTodoSeq()
+		});
+	}
+	public void updateTodoAdmin(int todoSeq,String status,String comment) { 
+		String con="";
+		if(status.equals(Todo.TODO_FINISH)){
+			con+=" todo_finishday =getDate(), ";
+		}
+		String query = "" + 
+				"UPDATE T_NF_TODO SET " 
+			
+				+con
+				+"	todo_status = ?, " +
+				"	todo_comment = ? " +
+			
+				"WHERE todo_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] {
+				status,comment,todoSeq
+		});
+	}
+	public Todo getTodo(String todo_seq) {
+		String query = "" + 
+				"SELECT todo_seq, project_seq, module, process, todo, todo_part, todo_startday, todo_endday, todo_finishday, user_id, todo_status, todo_comment, todo_reg_date " +
+				"FROM T_NF_TODO " +
+				"WHERE todo_seq = ? ";
+		return (Todo)this.jdbcTemplate.queryForObject(query, new Object[] { todo_seq }, this.todoMapper);
+	}
+
+	public List<Todo> getTodoList(String userId,String startday,String endday,String type) {
+		String con=" where 1=1 ";
+		if(!userId.equals("")){
+			con+=" and user_id = '"+userId+"'";
+		}
+		if(!startday.equals("")&&!endday.equals("")){
+			con+=" and ( todo_startday <='"+startday+"' and todo_endday >='"+endday+"' ) ";
+		}
+		if(!type.equals("")){
+			if(type.equals(Todo.TODO_POSTPHONE)){
+				con+=" and  todoType = 1";
+			}else{
+				con+=" and todoType =  2";
+			}
+			
+		}
+		String query = "" +
+				" select * from v_nf_todo "+con+" order by project_seq asc ";
+		return (List<Todo>)this.jdbcTemplate.query(query, this.VtodoMapper);
+	}
+	
+	public List<Todo> getTodoList(int projectSeq,int page,int itemCountPerPage ) {
+		
+		
+		String query = "" 
+				+ "	SELECT * FROM ( "
+				+ "		SELECT "
+				+ "			ROW_NUMBER() OVER(order by todo_seq desc) as row_seq, "
+				+ "			A.* "
+				+"  from v_nf_todo as A where project_seq= ? "
+				+ "	) AS a WHERE row_seq BETWEEN (("+page+" - 1) * "+itemCountPerPage+") +1 AND "+page+" * "+itemCountPerPage+" ";
+		return (List<Todo>)this.jdbcTemplate.query(query, new Object[] { projectSeq }, this.VtodoMapper);
+	}
+	public int getTodoCount(int projectSeq) {
+		
+		
+		String query = "" 
+				+ "	SELECT count(*) FROM  "
+			
+				+"   v_nf_todo  where project_seq= ? ";
+		return this.jdbcTemplate.queryForInt(query, new Object[] { projectSeq });
+	}
+}

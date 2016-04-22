@@ -1,0 +1,327 @@
+var files = {
+	getList : function(frm,page) {
+		var param = {
+			dataType	: frm.dataType.value,
+			projectSeq	: frm.projectSeq.value,
+			keyword		: frm.keyword.value,
+			page		: page
+		};
+
+		$.ajax({
+		    type:"POST",
+		    url:"/proc/data_room.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+				var list = json.list;
+
+				$(".top-center").html(json.project.projectName);
+
+				var str = '';
+				var strpaging='';
+				if (list.length > 0) {
+					for(var i=0;i<list.length;i++){
+						str+='	<li>';
+						str+='	<dl class="bbs">';
+						str+='		<dt onclick="link.go(\'/m/files_view.go?projectSeq='+frm.projectSeq.value+'&dataSeq='+list[i].dataSeq+'&page=1\');">';
+						str+='			<img src="/images/ic_inbox_dw.png" class="icon">';
+						str+='		</dt>';
+						str+='		<dd onclick="link.go(\'/m/files_view.go?projectSeq='+frm.projectSeq.value+'&dataSeq='+list[i].dataSeq+'&page=1\');">';
+						str+='			<p class="contents">'+list[i].dataContents+'</p>';
+						str+='			<p class="info">'+list[i].userName+' | '+list[i].dataRegDate.substr(0,10)+'</p> ';
+						str+='		</dd>';
+						str+='	</dl>';
+						str+='</li>';
+					}
+					if((parseInt(json.PERPAGE)*parseInt(json.currentPage))<parseInt(json.count)){
+						
+						strpaging+=' <div class="pagelist"> ';
+						strpaging+=' <button type="button" onclick="files.getList(searchForm,'+(parseInt(json.currentPage)+1)+');">더보기 </button>';
+						strpaging+=' </div>';
+					}
+					
+					  $(".list-cell.empty").empty();
+					   $(".bbs-list").append(str);
+				} else {
+					str = '<li class="list-cell empty">검색된 자료가 없습니다.</li>';
+					 $(".bbs-list").html(str);
+				}
+		     
+		        $(".paging-block").html(strpaging);
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+	},
+	onSearch : function (frm,page) {
+		$(".bbs-list").empty();
+		files.getList(frm,page);
+		return false;
+	},
+	view : function(frm,page) {
+		var param = {
+			projectSeq	: frm.projectSeq.value,
+			dataSeq		: frm.dataSeq.value,
+			page		: page,
+		};
+		
+
+		$.ajax({
+		    type:"POST",
+		    url:"/proc/data_room_view.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+				var data = json.data;
+				var contents = '';
+				contents += data.dataContents;
+				contents += "<br><br>";
+				contents += "file : "+data.dataFileName;
+
+				$(".top-center").html(json.project.projectName);
+				$(".files .contents").html(data.dataContents);
+				$(".files .info").html(data.userName+' | '+data.dataRegDate.substr(0,10));
+				var str ="";
+				var strdot ="";
+				strdot+='		<button type="button" class="bbs-btn" onclick="files.goFileEdit(pageForm,'+data.dataSeq+');">수정</button> ';
+				strdot+='		<button type="button" class="bbs-btn" onclick="files.onfilesDelete(pageForm,'+data.dataSeq+');">삭제</button> ';
+
+				//strdot+='	<div class="bbs-menu"> ';
+				//strdot+='		<img src="/images/ic_3spot_etc.png" onclick="files.showContextMenu('+data.dataSeq+',event);">';
+				//strdot+='	</div> ';
+				
+				str+='<button type="button" class="download-btn" onclick="location.href=\'/fileDownload.go?fileName='+data.dataFileName+'\'">다운로드</button>';
+			
+				
+				$(".bbs-menu").html(strdot);
+				$(".filebutton").html(str);
+				
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+		
+	},
+	goFileEdit : function(frm,seq) {
+		document.location.href = '/m/files_edit.go?projectSeq='+frm.projectSeq.value+"&dataSeq="+seq;
+	},
+	edit : function(frm) {
+		var param = {
+				dataSeq:frm.dataSeq.value,
+				projectSeq:frm.projectSeq.value
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/proc/file_edit.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+			    	var data = json.data;
+				
+
+					$(".top-center").html(json.project.projectName);
+
+					frm.contents.value = data.dataContents;
+					
+					var str = ' ';
+					var photostr=' ';
+					if(data.dataFileName != ''){
+						
+							photostr+='	<p id="img_1">';
+							photostr+='		<input type="hidden" name="upfile" value="'+data.dataFileName+'">';
+							photostr+='		'+data.dataFileName+' ';
+							photostr+='		<button type="button" class="file-delete" onclick="files.deleteFile('+data.dataSeq+',\''+data.dataFileName+'\',1);">X</button><br> ';
+							photostr+=' </p> ';
+						
+					}
+					$(".file-add").append(photostr);
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+			
+	},
+	filesSave : function(frm) {
+		var param = {
+			dataSeq		: frm.dataSeq.value,
+			projectSeq	: frm.projectSeq.value,
+			dataContents	: frm.contents.value,
+			fileName	:  getList("upfile").join("")
+		};
+		
+		$.ajax({
+		    type:"POST",
+		    url:"/proc/data_edit_do.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+		    	alert(json.message);
+		    	if(json.result){
+		    		document.location.href = "/m/files_list.go?projectSeq="+frm.projectSeq.value;
+		    	}
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+	},
+	menu : function(bbsSeq) {
+		
+	},
+	download : function(fileName) {
+		var param = {
+				fileName	: fileName,
+			
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/fileDownload.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+			
+					
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+		
+	},
+	deleteFile : function(dataSeq,fileName,num) {
+		if(confirm("파일을 삭제하시겠습니까?")) {
+				var param = {
+					dataSeq : dataSeq,
+					fileName : fileName
+				};
+				$.ajax({
+					type:"POST",
+					url:"/proc/data_file_delete.go",
+					dataType:"json",
+					data:param,
+					success:function(json){
+						$("#img_"+num).remove();
+					}
+				}); 
+			}
+	},
+	onfilesDelete : function(frm, seq) {
+		if(confirm("삭제하시겠습니까?")) {
+			var param = {
+				dataSeq : seq
+				
+			};
+			$.ajax({
+				type:"POST",
+				url:"/proc/data_delete.go",
+				dataType:"json",
+				data:param,
+				success:function(json){
+					document.location.href = "/m/files_list.go?projectSeq="+frm.projectSeq.value;
+				}
+			}); 
+		}
+		
+		
+	},
+	showContextMenu : function(key, event) {
+		//var event = window.event;
+	    var posX = event.clientX;
+	    var posY = event.clientY;
+	    if ($(window).width() < (posX+80)) {
+	    	posX = posX - 80;
+	    }
+	    if ($(window).height() < (posY+55)) {
+	    	posY = posY - 55;
+	    }
+	    var str = '';
+	    str += '<ul class="context">';
+	    str += '	<li onclick="files.goFileEdit(pageForm,'+key+');">수정</li>';
+	    str += '	<li onclick="files.onfilesDelete(pageForm,'+key+');">삭제</li>';
+	    str += '</ul>';
+	    $("body").append(str);
+		$("ul.context").css("display","block");
+		$("ul.context").css("top",posY);
+		$("ul.context").css("left",posX);
+		bbs.showContext = true;
+		event.returnValue = false;
+	},
+
+	addFile : function() {
+		
+	},
+	showHideSearch : function() {
+		if ($(".search").height() < 39) {
+			$(".search").animate({height:39},300);
+		} else {
+			$(".search").animate({height:0},200);
+		}
+	},
+	fileupload :function(){
+		var options = {
+				//target :		'#user-join-result',
+				beforeSubmit :	formCheck,
+				success :		formSuccess
+		};
+		$('#bbsEditForm').ajaxForm(options);
+	},
+	formCheck : function() {
+		var str = '<li class="upload-progress"><img src="/images/ajax-loader.gif"></li>';
+		$(".file-add").append(str);
+		return true; 
+	},
+	formSuccess : function (responseText, statusText, xhr, $form) {
+		//alert('status: ' + statusText + '\n\nresponseText: \n' + responseText );
+		var idx = $(".upfile").size();
+		var json = JSON.parse(responseText);
+		try {
+			$(".upload-progress").remove();
+			if(json.photo!=""){
+				$(".file-add").empty();
+				var str = '';
+				str += '<li id="img_'+idx+'">';
+				str += '	'+ json.originalFileName +' ';
+				str += '		<button type="button" class="del-btn" onclick="files.deleteFile('+fileEditForm.dataSeq.value+',\''+ json.path +'/'+ json.originalFileName +'\','+idx+');">X</button>';
+				//str += '	</div>';
+				str += '	<input type="hidden" name="upfile" class="photo" value="'+ json.path +'/'+ json.originalFileName +'">';
+				str += '</li>';
+				$(".file-add").append(str);
+				
+				$(".file").val("");
+			}
+		} catch (e) {
+			pop.openAlert('',json.message); 
+		}
+	}
+};

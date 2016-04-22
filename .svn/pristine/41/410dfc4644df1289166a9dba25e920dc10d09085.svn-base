@@ -1,0 +1,115 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/common/header.jsp"  %>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		bbs.getList(searchForm,1);
+	});
+</script>
+
+<style>
+</style>
+
+</head>
+<body>
+
+<header>
+	<ul>
+		<li class="top-left">
+			<a href="#">
+				<img src="/images/ic_top_back_arrow.png">
+				<span class="top-menu">메인</span>
+			</a>
+		</li>
+		<li class="top-center">
+			리얼체크업
+		</li>
+		<li class="top-right">
+			<a href="#">
+				<img src="/images/ic_search.png">
+			</a>
+			<a href="#">
+				<img src="/images/ic_search.png">
+			</a>
+		</li>
+	</ul>
+</header>
+
+<article>
+
+	<form method="post" name="searchForm" onsubmit="return bbs.getList(this,1); return false;">
+	<input type="hidden" name="bbsType" value="${bbsType}">
+	<input type="hidden" name="bbsType2" value="">
+	<input type="hidden" name="sort" value="">
+	<input type="hidden" name="colName" value="">
+	<input type="hidden" name="projectSeq" value="${projectSeq}">
+		<div class="search">
+			<input type="text" name="keyword" placeholder="내용/작성자 검색">
+			<button type="submit">검색</button>
+		</div>
+	</form>
+	
+	<ul class="tab tab3">
+		<li onclick="bbs.tab(searchForm,0);" class="">전체목록</li>
+		<li onclick="bbs.tab(searchForm,1);">요청</li>
+		<li onclick="bbs.tab(searchForm,2);">버그</li>
+	</ul>
+
+	<div class="list-title"></div>
+
+	<ul class="bbs-list">
+	<!-- 	<li>
+			<dl class="bbs">
+				<dt><img src="/images/ic_list_step_04.png"></dt>
+				<dd>
+					<p class="contents">[버그]버튼을 눌러도 반응이 없어요</p>
+					<p class="info">김영희 | 16.12.30</p>
+				</dd>
+			</dl>
+			<dl class="bbs">
+				<dt><img src="/images/ic_reply.png"></dt>
+				<dd>
+					<p class="contents">[접수]작업이 진행중입니다.</p>
+					<p class="info">임동민 | 16.12.30</p>
+				</dd>
+			</dl>
+			<dl class="bbs">
+				<dt><img src="/images/ic_reply.png"></dt>
+				<dd>
+					<p class="contents">[완료]완료되었습니다.</p>
+					<p class="info">임동민 | 16.12.30</p>
+				</dd>
+			</dl>
+		</li>
+		<li>
+			<dl class="bbs">
+				<dt><img src="/images/ic_list_step_01.png"></dt>
+				<dd>
+					<p class="contents">[버그]버튼을 눌러도 반응이 없어요</p>
+					<p class="info">김영희 | 16.12.30</p>
+				</dd>
+			</dl>
+			<dl class="bbs">
+				<dt><img src="/images/ic_reply.png"></dt>
+				<dd>
+					<p class="contents">[접수]작업이 진행중입니다.</p>
+					<p class="info">임동민 | 16.12.30</p>
+				</dd>
+			</dl>
+			<dl class="bbs">
+				<dt><img src="/images/ic_reply.png"></dt>
+				<dd>
+					<p class="contents">[완료]완료되었습니다.</p>
+					<p class="info">임동민 | 16.12.30</p>
+				</dd>
+			</dl>
+		</li> -->
+	</ul>
+<div class="paging-block"></div>
+<%@ include file="/WEB-INF/views/m/m_footer.jsp"  %>
+
+</article>
+
+</body>
+</html>

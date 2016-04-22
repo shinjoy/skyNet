@@ -1,0 +1,322 @@
+var company = {
+		getList : function(frm,page) {
+			var param = {
+					page:page,
+					sort:frm.sort.value,
+					colName:frm.colName.value,
+					keyword:frm.keyword.value
+				};
+
+				$.ajax({
+				    type:"POST",
+				    url:"/admin/company_list.go",
+					data:param,
+				    dataType:"json",
+				
+				    success:function(json) {
+						var list = json.list;
+						var str = '';
+						str+= ' <table class="list"> ';
+						str+= ' <colgroup> ';
+						str+= '		<col width="5%"> ';
+						str+= '		<col width="10%"> ';
+						str+= '		<col width="*"> ';
+						str+= '		<col width="20"> ';
+						str+= ' </colgroup> ';
+						str+= ' <tbody class="rl"> ';
+						if (list.length > 0) {
+							for(var i=0;i<list.length;i++){
+								str+= ' <tr > ';
+								str+= ' 	<td > '+list[i].companySeq + '</td>';
+								str+= ' 	<td onclick="document.location.href=\'/admin/admin/company_view.go?companySeq='+list[i].companySeq+'\';"> '+list[i].companyName + '</td>';
+								str+= ' 	<td> '+list[i].companyComment + '</td>';
+								str+= ' 	<td> <button type="button" onclick="company.popUpCompany('+list[i].companySeq+');">수정 <button type="button" onclick="company.companyDelete('+list[i].companySeq+');">삭제</td>';
+								str+= ' </tr> ';
+							}
+							
+						} else {
+							str = '<tr><td class="list-cell empty">업체가 없습니다.</td></tr>';
+						}
+				        $(".contents-list").html(str);
+				        $(".paging-block").html(json.paging);
+				    },
+				    error:function(xhr, status, error) {
+						console.log("err:",xhr, status, error);
+				    },
+				    complete:function(data) {
+						console.log("complete:",data);
+				    }
+				});
+				return false;
+		},	
+		
+		
+	getView : function(frm,page) {
+		var param = {
+				page:page,
+				colName:frm.colName.value,
+				sort:frm.sort.value,
+				companySeq:frm.companySeq.value
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/admin/company_view.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+					var list = json.list;
+					var str = '';
+					$(".company-name").html(json.company.companyName);
+					str+= ' <table class="list"> ';
+					str+= ' <colgroup> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="*"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= ' </colgroup> ';
+					str+= ' <tbody class="rl"> ';
+					if (list.length > 0) {
+						for(var i=0;i<list.length;i++){
+							str+= ' <tr> ';
+							str+= ' 	<td> '+list[i].userId + '</td>';
+							str+= ' 	<td> '+list[i].userName + '</td>';
+							str+= ' 	<td> '+list[i].userGroup + '</td>';
+							str+= ' 	<td> '+list[i].userPosition + '</td>';
+							str+= ' 	<td> '+list[i].userPhone + '</td>';
+							str+= ' 	<td> '+list[i].userEmail + '</td>';
+							str+= ' 	<td> '+list[i].userEct + '</td>';
+							str+= ' 	<td> <button type="button" onclick="company.popUp('+list[i].companySeq+',\''+list[i].userId+'\');">수정 <button type="button" onclick="company.adminDelete(\''+list[i].userId+'\');">삭제</td>';
+							str+= ' </tr> ';
+						}
+						
+					} else {
+						str = '<tr><td class="list-cell empty">업체 담당자가 없습니다.</td></tr>';
+					}
+					
+					var project= json.prolist;
+					var projectstr='';
+					if (project.length > 0) {
+						for(var i=0;i<project.length;i++){
+							projectstr+= ' <li> ';
+							projectstr+= ' 	<dd> '+project[i].projectFileName + '</dd>'; //로고자리
+							projectstr+= ' 	<dd> '+project[i].projectName + '</dd>';
+							projectstr+= ' 	<dd> '+project[i].projectStartDay + '~';
+							projectstr+= ' 	 '+project[i].projectEndDay + '</dd>';
+						
+							projectstr+= ' </li> ';
+						}
+						
+					} else {
+						projectstr = '<tr><td class="list-cell empty">업체 담당자가 없습니다.</td></tr>';
+					}
+					
+					
+					
+					
+			        $(".contents-list").html(str);
+			        $(".project-list").html(projectstr);
+			        $(".paging-block").html(json.paging);
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+	},
+	listOrderCompany : function(colname, sort) {
+		dataForm.colName.value = colname;
+		dataForm.sort.value = sort;
+		company.getList(dataForm, 1);
+		var cSort ="asc";
+		var point ="▼";
+		if(sort=='asc'){
+			cSort="desc";
+			point="▲";
+		}
+		
+		var str = "<button type='button' class='"+colname+"' onclick=\"company.listOrderCompany('"+colname+"','"+cSort+"');\">"+point+"</button>";
+		$("#"+colname).html(str);
+	},
+	listOrder : function(colname, sort) {
+		dataForm.colName.value = colname;
+		dataForm.sort.value = sort;
+		company.getView(dataForm, 1);
+		var cSort ="asc";
+		var point ="▼";
+		if(sort=='asc'){
+			cSort="desc";
+			point="▲";
+		}
+		
+		var str = "<button type='button' class='"+colname+"' onclick=\"company.listOrder('"+colname+"','"+cSort+"');\">"+point+"</button>";
+		$("#"+colname).html(str);
+	},
+	popUp : function(companySeq,userId){
+		
+		pop.openWindow("/admin/admin/company_admin.go?companySeq="+companySeq+"&userId="+userId, 'popup', 800, 800, 'yes', 'yes');
+	},
+	popUpCompany : function(companySeq){
+		
+		pop.openWindow("/admin/admin/company.go?companySeq="+companySeq, 'popup', 400, 800, 'yes', 'yes');
+	},
+	companyEdit : function (frm){
+
+		if(frm.companyName.value==""){
+			alert("업체명을 입력해주세요.");
+			return false;
+		}
+	
+		
+		var param = {
+				companyName : frm.companyName.value,
+				companyComment : frm.companyComment.value,
+				companySeq : frm.companySeq.value
+				
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/admin/company_edit_do.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+			    	alert(json.message);
+			    	if(json.result){
+			    		window.opener.company.reloadPage();
+				    	window.close();
+			    	}
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+	},
+	adminEdit : function (frm){
+		
+		if(frm.userId.value==""){
+			alert("아이디를 입력해주세요.");
+			return false;
+		}
+		if(frm.userPw.value==""){
+			alert("비밀번호를 입력해주세요.");
+			return false;		
+		}
+		if(frm.userName.value==""){
+			alert("이름을 입력해주세요.");
+			return false;
+		}
+		
+		var param = {
+				userId : frm.userId.value,
+				userPw : frm.userPw.value,
+				userName : frm.userName.value,
+				userGroup : frm.userGroup.value,
+				userPosition : frm.userPosition.value,
+				userPhone : frm.userPhone.value,
+				companySeq : frm.companySeq.value,
+				userEmail : frm.userEmail.value,
+				userEct : frm.userEct.value,
+				userType : frm.userType.value,
+				userLevel : frm.userLevel.value,
+				type : frm.type.value
+				
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/admin/user_edit_do.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+			    	alert(json.message);
+			    	if(json.result){
+			    		window.opener.company.reloadPage();
+				    	window.close();
+			    	}
+			    	
+			    	
+			    	
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+		
+	},
+	adminDelete : function (userId){
+		if(confirm("삭제하시겠습니까?")){
+			var param = {
+					userId : userId,
+				};
+	
+				$.ajax({
+				    type:"POST",
+				    url:"/admin/user_delete_do.go",
+					data:param,
+				    dataType:"json",
+				
+				    success:function(json) {
+				    	alert(json.message);
+				    	document.location.reload();
+				     },
+				    error:function(xhr, status, error) {
+						console.log("err:",xhr, status, error);
+				    },
+				    complete:function(data) {
+						console.log("complete:",data);
+				    }
+				});
+				return false;
+		}
+		
+	},
+	companyDelete : function (seq){
+		if(confirm("삭제하시겠습니까?")){
+			var param = {
+					companySeq : seq,
+				};
+	
+				$.ajax({
+				    type:"POST",
+				    url:"/admin/company_delete_do.go",
+					data:param,
+				    dataType:"json",
+				
+				    success:function(json) {
+				    	alert(json.message);
+				    	document.location.reload();
+				     },
+				    error:function(xhr, status, error) {
+						console.log("err:",xhr, status, error);
+				    },
+				    complete:function(data) {
+						console.log("complete:",data);
+				    }
+				});
+				return false;
+		}
+		
+	},
+	reloadPage : function(){
+		document.location.reload();//href='/admin/admin/company_view.go?companySeq='+seq+'&page=1';
+	}
+};

@@ -1,0 +1,106 @@
+var files = {
+	getList : function(frm,page) {
+		var param = {
+			dataType	: frm.dataType.value,
+			projectSeq	: frm.projectSeq.value,
+			keyword		: frm.keyword.value,
+			page		: page
+		};
+
+		$.ajax({
+		    type:"POST",
+		    url:"/proc/data_room.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+				var list = json.list;
+
+				$(".top-center").html(json.project.projectName);
+
+				var str = '';
+				if (list.length > 0) {
+					for(var i=0;i<list.length;i++){
+						str+='	<li>';
+						str+='	<dl class="bbs">';
+						str+='		<dt onclick="link.go(\'/m/files_view.go?projectSeq='+frm.projectSeq.value+'&dataSeq='+list[i].dataSeq+'&page=1\');">';
+						str+='			<img src="/images/ic_inbox_dw.png">';
+						str+='		</dt>';
+						str+='		<dd onclick="link.go(\'/m/files_view.go?projectSeq='+frm.projectSeq.value+'&dataSeq='+list[i].dataSeq+'&page=1\');">';
+						str+='			<p class="contents">'+list[i].dataContents+'</p>';
+						str+='			<p class="info">'+list[i].userName+' | '+list[i].dataRegDate.substr(0,10)+'</p> ';
+						str+='		</dd>';
+						str+='	</dl>';
+						str+='</li>';
+					}
+					
+				} else {
+					str = '<li class="list-cell empty">검색된 자료가 없습니다.</li>';
+				}
+		        $(".bbs-list").html(str);
+		        $(".paging-block").html(json.paging);
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+	},
+	view : function(frm,page) {
+		var param = {
+			projectSeq	: frm.projectSeq.value,
+			dataSeq		: frm.dataSeq.value,
+			page		: page,
+		};
+		
+
+		$.ajax({
+		    type:"POST",
+		    url:"/proc/data_room_view.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+				var data = json.data;
+
+				$(".top-center").html(json.project.projectName);
+				$(".files .contents").html(data.dataContents);
+				$(".files .info").html(data.userName+' | '+data.dataRegDate.substr(0,10));
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+		
+	},
+	edit : function(frm) {
+		
+	},
+	menu : function(bbsSeq) {
+		
+	},
+	download : function() {
+		
+	},
+	deleteFile : function() {
+		
+	},
+	addFile : function() {
+		
+	},
+	showHideSearch : function() {
+		if ($(".search").height() < 39) {
+			$(".search").animate({height:39},300);
+		} else {
+			$(".search").animate({height:0},200);
+		}
+	}
+};

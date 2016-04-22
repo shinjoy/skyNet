@@ -1,0 +1,79 @@
+/**
+ * BestistPop v1.0.2
+ * http://www.bestist.net
+ *
+ * Written by: bestist@naver.com, 2014
+ */
+
+
+/** RESET AND LAYOUT
+===================================*/
+
+#mask {
+	display:none;
+	position: fixed; left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color:rgba(0,0,0,0.8);
+    z-index: 80000;
+}
+#pop-box {
+    float: left;
+    position: fixed;
+    top: 50%; left: 50%;
+    z-index: 99999;
+    background-color:#fff;
+    box-shadow: 0px 0px 10px #999;
+    -webkit-box-shadow: 0px 0px 10px #999;
+    margin-left:-48%;
+    border: 1px solid #000;
+	border-radius: 5px;
+}
+#pop-box-full {
+    background: #fff;
+    font-size: 1.2em;
+    width:95%;
+    height:95%;
+    position: fixed;
+    top: 10px; left: 50%;
+    z-index: 99999;
+    margin-left:-48%;
+}
+.pop-div {
+	display:none;
+}
+.pop-head {
+	width:100%;
+	height:40px;
+	background-color:#bbb;
+	border-radius: 5px 5px 0 0;
+}
+.pop-head .pop-title {
+    float:left;
+    width:80%;
+}
+.pop-head .pop-close {
+    float:right;
+    width:30px;
+    margin:4px 10px 0 0;
+    cursor:pointer;
+}
+.pop-head .pop-title span {
+    color:#fff;
+    font-size:18px;
+    display:inline-block;
+    font-weight:bold;
+    margin:7px 0 0 10px;
+}
+#pop-box-full .pop-close {
+    position:fixed;
+    top:18px;
+    right:55px;
+    width:36px;
+    z-index:10000;
+}
+.zoom-pop-box {
+	height:100%;
+	background-repeat:no-repeat;
+	background-position:center;
+	background-size:contain;
+}

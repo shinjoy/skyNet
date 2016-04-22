@@ -1,0 +1,57 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/common/header.jsp"  %>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+	});
+</script>
+
+<style>
+</style>
+
+</head>
+<body>
+
+<form method="post" name="bbsEditForm">
+
+<header>
+	<ul>
+		<li class="top-left">
+			<a href="#">
+				<img src="/images/ic_top_back_arrow.png">
+				<span class="top-menu">목록</span>
+			</a>
+		</li>
+		<li class="top-center">
+			리얼체크업
+		</li>
+		<li class="top-right">
+			<button type="button" class="top-menu">등록</button>
+		</li>
+	</ul>
+</header>
+
+<article>
+
+	<ul class="tab tab2">
+		<li onclick="link.go('/bbs_edit.go?tab=req');" class="">요청</li>
+		<li onclick="link.go('/bbs_edit.go?tab=bug');">버그</li>
+	</ul>
+
+	<textarea name="contents" placeholder="내용을 입력해주세요."></textarea>
+	
+	<ul class="bbs-tools">
+		<li><button type="button" onclick="util.getPhoto();"><img src="/images/btn_picture.png"></button></li>
+		<li><button type="button" onclick="util.getCamera();"><img src="/images/btn_camera.png"></button></li>
+		<li><button type="button" onclick="util.getMovie();"><img src="/images/btn_movie.png"></button></li>
+	</ul>
+
+<%@ include file="/WEB-INF/views/m/m_footer.jsp"  %>
+
+</article>
+
+</form>
+
+</body>
+</html>

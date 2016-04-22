@@ -1,0 +1,161 @@
+package kr.nomad.mars.dto;
+
+public class Project {
+	
+	int projectSeq = 0;
+	int companySeq = 0;
+	String projectName = "";
+	String projectComment = "";
+	String projectStartDay = "";
+	String projectEndDay = "";
+	String projectRegDate = "";
+	String projectStatus = "";
+	String projectInfo = "";
+	String projectFileName = "";
+	
+	String projectStatusTxt = "";
+	//View
+	
+	String companyName = "";
+	String companyComment = "";
+	int progressPercent=0;
+	int andPercent=0;
+	int iosPercent=0;
+	int webPercent=0;
+	int serverPercent=0;
+	int designPercent=0;
+	
+	
+	
+	
+	public String getProjectStatusTxt() {
+		String txt="";
+		if(this.projectStatus.equals("1")){
+			txt="진행예정";
+		}
+		if(this.projectStatus.equals("2")){
+			txt="진행중";		
+		}
+		if(this.projectStatus.equals("3")){
+			txt="개발완료";
+		}
+		if(this.projectStatus.equals("4")){
+			txt="검수중";
+		}
+		if(this.projectStatus.equals("5")){
+			txt="마감";
+		}
+		return txt;
+	}
+	public int getServerPercent() {
+		return serverPercent;
+	}
+	public void setServerPercent(int serverPercent) {
+		this.serverPercent = serverPercent;
+	}
+	public int getDesignPercent() {
+		return designPercent;
+	}
+	public void setDesignPercent(int designPercent) {
+		this.designPercent = designPercent;
+	}
+	public int getAndPercent() {
+		return andPercent;
+	}
+	public void setAndPercent(int andPercent) {
+		this.andPercent = andPercent;
+	}
+	public int getIosPercent() {
+		return iosPercent;
+	}
+	public void setIosPercent(int iosPercent) {
+		this.iosPercent = iosPercent;
+	}
+	public int getWebPercent() {
+		return webPercent;
+	}
+	public void setWebPercent(int webPercent) {
+		this.webPercent = webPercent;
+	}
+	public int getProgressPercent() {
+		return progressPercent;
+	}
+	public void setProgressPercent(int progressPercent) {
+		this.progressPercent = progressPercent;
+	}
+	public String getCompanyName() {
+		return companyName;
+	}
+	public void setCompanyName(String companyName) {
+		this.companyName = companyName;
+	}
+	public String getCompanyComment() {
+		return companyComment;
+	}
+	public void setCompanyComment(String companyComment) {
+		this.companyComment = companyComment;
+	}
+	public int getProjectSeq() {
+		return projectSeq;
+	}
+	public void setProjectSeq(int projectSeq) {
+		this.projectSeq = projectSeq;
+	}
+	public int getCompanySeq() {
+		return companySeq;
+	}
+	public void setCompanySeq(int companySeq) {
+		this.companySeq = companySeq;
+	}
+	public String getProjectName() {
+		return projectName;
+	}
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+	public String getProjectComment() {
+		return projectComment;
+	}
+	public void setProjectComment(String projectComment) {
+		this.projectComment = projectComment;
+	}
+	public String getProjectStartDay() {
+		return projectStartDay;
+	}
+	public void setProjectStartDay(String projectStartDay) {
+		this.projectStartDay = projectStartDay;
+	}
+	public String getProjectEndDay() {
+		return projectEndDay;
+	}
+	public void setProjectEndDay(String projectEndDay) {
+		this.projectEndDay = projectEndDay;
+	}
+	public String getProjectRegDate() {
+		return projectRegDate;
+	}
+	public void setProjectRegDate(String projectRegDate) {
+		this.projectRegDate = projectRegDate;
+	}
+	public String getProjectStatus() {
+		return projectStatus;
+	}
+	public void setProjectStatus(String projectStatus) {
+		this.projectStatus = projectStatus;
+	}
+	public String getProjectInfo() {
+		return projectInfo;
+	}
+	public void setProjectInfo(String projectInfo) {
+		this.projectInfo = projectInfo;
+	}
+	public String getProjectFileName() {
+		return projectFileName;
+	}
+	public void setProjectFileName(String projectFileName) {
+		this.projectFileName = projectFileName;
+	}
+
+	
+
+}

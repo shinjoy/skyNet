@@ -1,0 +1,58 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/common/header.jsp"  %>
+
+
+
+<script type="text/javascript">
+
+
+</script>
+
+<style>
+.select-search { border:1px solid #ddd; padding-bottom:4px;}
+</style>
+
+
+</head>
+
+
+
+<section class="">
+	<section id="">
+		
+
+		<section id="">
+			<header class="">
+				 ■ 업체 ${companySeq==0 ? '등록':'수정' }
+			</header>
+		
+			<div class="">
+			
+				
+				
+				<div class="contents-main">
+					<form method="post" name="dataForm" onsubmit="return company.companyEdit(this); return false;">
+						<input type="hidden" name="companySeq" value="${companySeq}">
+							
+							
+							<dl>
+								<dt>업체명</dt>
+								<dd><input type="text" name="companyName" value="${company.companyName}"></dd>
+							</dl>
+							<dl>
+								<dt>내용</dt>
+								<dd><input type="text" name="companyComment" value="${company.companyComment}"></dd>
+							</dl>
+						
+							<button type="submit">저장</button>
+					</form>
+				</div>
+			</div>
+		</section>
+	</section>
+</section>
+
+
+</body>
+</html>

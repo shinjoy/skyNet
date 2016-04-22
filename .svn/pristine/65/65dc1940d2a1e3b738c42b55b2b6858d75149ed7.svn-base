@@ -1,0 +1,11 @@
+var bbs = {
+	getList : function(frm,page) {
+		
+	},
+	edit : function(frm) {
+		
+	},
+	menu : function(bbsSeq) {
+		
+	}
+};

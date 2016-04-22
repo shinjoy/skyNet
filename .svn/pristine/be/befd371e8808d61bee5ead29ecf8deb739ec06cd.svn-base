@@ -1,0 +1,134 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/common/header.jsp"  %>
+
+
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	projectAdmin.getList(dataForm,1);
+});
+
+$(function() {
+    $.datepicker.setDefaults( $.datepicker.regional[ "ko" ] );
+    $( ".datepicker" ).datepicker(
+        {
+        	dateFormat: 'yy-mm-dd',
+ 	       showButtonPanel: true
+        }
+    );
+});
+
+</script>
+
+<style>
+.select-search { border:1px solid #ddd; padding-bottom:4px;}
+</style>
+
+
+</head>
+
+<%@ include file="/WEB-INF/views/admin/admin_header.jsp"  %>
+
+<section class="main-cover main-row">
+	<section id="main">
+		
+		<%@ include file="/WEB-INF/views/admin/admin_menu.jsp"  %>
+
+		<section id="contents">
+			<header class="panel">
+				 ■ 전체프로젝트 리스트
+			</header>
+		
+			<div class="contents-block">
+			
+				<h1>전체프로젝트 리스트</h1>
+				
+				<div class="contents-main">
+					<form method="post" name="dataForm" onsubmit="return projectAdmin.getList(this,1); return false;">
+						<input type="hidden" name="companySeq" value="${companySeq}">
+						<input type="hidden" name="colName" value="project_reg_date">
+						<input type="hidden" name="sort" value="desc">
+						<div class="contents-top">
+							<div class="top-tools">
+								<div class="search-tool">		
+									<input type="text" name="keyword" value="${keyword}" placeholder="업체/프로젝트 명 검색" class="itext">
+									<input type="text" name="startDate" class="itext datepicker" value="${startDate}" placeholder="시작일" style="width:80px;">
+									<input type="text" name="endDate" class="itext datepicker" value="${endDate}" placeholder="종료일" style="width:80px;">
+						
+
+									<button type="submit" class="btn">검색</button>
+									
+									<button type="button" class="btn" onclick="projectAdmin.projectEditGo(0,0);" >프로젝트등록</button>
+								</div>
+								
+							</div>
+						</div>
+						<table class="list">
+							<colgroup>
+								<col width="20%">
+								<col width="*">
+								<col width="10%">
+								<col width="10%">
+								<col width="10%">
+								<col width="10%">
+								<col width="10%">
+								
+							</colgroup>
+							<thead>
+								<th class="text-left">업체명 
+									<span id="company_name">
+										<button type="button" onclick="projectAdmin.listOrder('company_name','asc');" class="company_name" style="margin-top:3px;">▼</button>
+									</span>
+								</th>
+								<th class="text-left">프로젝트명 
+								<span id="project_name">
+									<button type="button" onclick="projectAdmin.listOrder('project_name','asc');" class="project_name" style="margin-top:3px;">▼</button>
+								</span>
+								</th>
+								<th class="text-left">전체진행률 (%)
+								<span id="progress_percent">
+									<button type="button" onclick="projectAdmin.listOrder('progress_percent','asc');" class="progress_percent" style="margin-top:3px;">▼</button>
+								</span>
+								</th>
+								<th>시작일
+									<span id="project_start_day">
+										 <button type="button" onclick="projectAdmin.listOrder('project_start_day','asc');" class="project_start_day" style="margin-top:3px;">▼</button>
+									</span>
+								</th>
+								<th>마감일
+									<span id="project_end_day">
+										 <button type="button" onclick="projectAdmin.listOrder('project_end_day','asc');" class="project_end_day" style="margin-top:3px;">▼</button>
+									</span>
+								</th>
+								<th>상태
+									<span id="project_status">
+									<button type="button" onclick="projectAdmin.listOrder('project_status','asc');" class="project_status" style="margin-top:3px;">▼</button>
+									</span>
+								</th>
+								<th>등록일
+									<span id="project_reg_date">
+									 <button type="button" onclick="projectAdmin.listOrder('project_reg_date','asc');" class="project_reg_date" style="margin-top:3px;">▼</button>
+									</span>
+								</th>
+								
+							</thead>
+							<tbody class="contents-list">
+							</tbody>
+						</table>	
+
+						<div class="paging-block">
+						</div>
+
+					</form>
+				</div>
+			</div>
+		</section>
+	</section>
+</section>
+
+<%@ include file="/WEB-INF/views/admin/admin_footer.jsp"  %>
+
+</body>
+</html>

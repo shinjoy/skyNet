@@ -1,0 +1,4 @@
+var link = {
+	go : function(url) {
+	},
+};

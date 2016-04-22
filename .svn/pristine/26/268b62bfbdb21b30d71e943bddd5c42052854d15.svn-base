@@ -1,0 +1,60 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE HTML>
+
+<% request.setCharacterEncoding("utf-8"); %>
+<%
+ response.setHeader("Cache-Control","no-cache"); 
+ response.setHeader("Pragma","no-cache"); 
+ response.setDateHeader("Expires",0); 
+%>
+
+
+
+<html lang="ko">
+<head>
+	<title>SkyNet</title>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="Content-Script-Type" content="text/javascript" />
+	<meta http-equiv="Content-Style-Type" content="text/css" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- 
+		안드로이드 브라우저는 width를 지정하지 않는 이상, 980px의 width값을 가진다. 
+		이보다 더 작은 해상도를 지원할 경우, viewport 메타 태그를 추가한다.
+		데스트탑 브라우저에서는 viewport 메타 태그가 무시된다.
+	 -->
+	<!--<link rel="stylesheet" type="text/css" href="/css/nf_admin.css" media="screen and (min-width: 801px)" />  데스크탑을 위한 css. 480px 초과 해상도의 경우로 설정 -->
+	<!-- <link rel="stylesheet" type="text/css" href="/css/devicemanager-m.css" media="only screen and (max-width: 800px)" /> 안드로이드를 위한 css. 480px 이하 해상도의 경우로 설정 -->
+	<!-- IE를 위한 별도 처리 css -->
+	<!--[if IE]>
+	    <link rel="stylesheet" type="text/css" href="/css/devicemanager.css" media="all" />
+	<![endif]-->
+
+
+
+	<link rel="stylesheet" type="text/css" href="/css/nf.admin.css" />
+
+	<link rel="stylesheet" type="text/css" href="/css/nf.admin.table.css" />
+	<link rel="stylesheet" type="text/css" href="/lib/bestist/bestist.pop.css" />
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	
+	<script type="text/javascript" src="/lib/jquery/jquery-2.1.1.js"></script> 
+	<script type="text/javascript" src="/lib/jquery_ui/jquery-ui.min.js"></script>
+	<link href="/lib/jquery_ui/jquery-ui.css" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript" src="/lib/bestist/bestist.util.form.js"></script>
+	<script type="text/javascript" src="/lib/bestist/bestist.pop.js"></script>
+	<script type="text/javascript" src="/lib/bestist/bestist.util.file.js"></script>
+	
+	<script type="text/javascript" src="/lib/jquery/jquery.ui.datepicker-ko.js"></script>
+	
+	<script type="text/javascript" src="/lib/jquery/timepicki.js"></script>
+
+ 	<script type="text/javascript" src="/lib/jquery/jquery.form.js"></script>
+
+ 	<script type="text/javascript" src="/js/aside.js"></script>
+ 	<script type="text/javascript" src="/js/user.js"></script>
+
+
+

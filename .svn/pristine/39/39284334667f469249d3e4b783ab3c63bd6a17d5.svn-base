@@ -1,0 +1,78 @@
+var projectAdmin = {
+	getList : function(frm,page) {
+		var param = {
+				page:page,
+				sort:frm.sort.value,
+				colName:frm.colName.value,
+				startDay:frm.startDate.value,
+				endDay:frm.endDate.value,
+				keyword:frm.keyword.value,
+				//status:frm.status.value,
+				companySeq:frm.companySeq.value
+				
+				
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/admin/project_list.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+					var list = json.list;
+					var str = '';
+					str+= ' <table class="list"> ';
+					str+= ' <colgroup> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="*"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= ' </colgroup> ';
+					str+= ' <tbody class="rl"> ';
+					if (list.length > 0) {
+						for(var i=0;i<list.length;i++){
+							str+= ' <tr onclick="document.location.href=\'/admin/admin/company_view.go?companySeq='+list[i].companySeq+'\';"> ';
+							str+= ' 	<td> '+list[i].companyName + '</td>';
+							str+= ' 	<td> '+list[i].projectName + '</td>';
+							str+= ' 	<td> '+list[i].projectStartDay + '</td>';
+							str+= ' 	<td> '+list[i].projectEndDay + '</td>';
+							str+= ' 	<td> '+list[i].projectStatusTxt + '</td>';
+							str+= ' 	<td> '+list[i].projectRegDate + '</td>';
+							str+= ' </tr> ';
+						}
+						
+					} else {
+						str = '<tr><td class="list-cell empty">프로젝트가 없습니다.</td></tr>';
+					}
+			        $(".contents-list").html(str);
+			        $(".paging-block").html(json.paging);
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+	},
+	listOrder : function(colname, sort) {
+		dataForm.colName.value = colname;
+		dataForm.sort.value = sort;
+		projectAdmin.getList(dataForm, 1);
+		var cSort ="asc";
+		var point ="▼";
+		if(sort=='asc'){
+			cSort="desc";
+			point="▲";
+		}
+		
+		var str = "<button type='button' class='"+colname+"' onclick=\"projectAdmin.listOrder('"+colname+"','"+cSort+"');\">"+point+"</button>";
+		$("#"+colname).html(str);
+		
+		
+	}
+};

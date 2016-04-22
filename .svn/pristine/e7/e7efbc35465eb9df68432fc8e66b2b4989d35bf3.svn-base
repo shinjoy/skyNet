@@ -1,0 +1,220 @@
+package kr.nomad.mars;
+
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import javax.servlet.http.HttpSession;
+
+import kr.nomad.mars.dao.CompanyDao;
+import kr.nomad.mars.dao.ProjectDao;
+import kr.nomad.mars.dao.UserDao;
+import kr.nomad.mars.dto.Company;
+import kr.nomad.mars.dto.Project;
+import kr.nomad.mars.dto.User;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+/**
+ * Handles requests for the application home page.
+ */
+@Controller
+public class HomeController {
+	
+	@Autowired ProjectDao projectDao;
+	@Autowired UserDao userDao;
+	@Autowired CompanyDao companyDao;
+
+	// 로그인
+	@RequestMapping("/m/login.go")
+	public String mLoginController(
+			Model model, HttpSession session
+		) {
+
+		return "m/login";
+	}
+
+	// 프로젝트 리스트
+	@RequestMapping("/m/project_list.go")
+	public String mProjectListController(
+			Model model, HttpSession session
+		) {
+
+		return "m/project_list";
+	}
+
+	// 프로젝트 상세
+	@RequestMapping("/m/project_view.go")
+	public String mProjectViewController(
+			@RequestParam(value="projectSeq", required=false, defaultValue="0") int projectSeq, 
+			Model model, HttpSession session
+		) {
+
+		model.addAttribute("projectSeq", projectSeq);
+		return "m/project_view";
+	}
+	
+	// 게시판
+	@RequestMapping("/m/bbs_list.go")
+	public String mBbsListController(
+			@RequestParam(value="projectSeq", required=false, defaultValue="0") int projectSeq, 
+			@RequestParam(value="bbsType", required=false, defaultValue="0") int bbsType, 
+			Model model, HttpSession session
+		) {
+
+		model.addAttribute("projectSeq", projectSeq);
+		model.addAttribute("bbsType", bbsType);
+		return "m/bbs_list";
+	}
+	
+	@RequestMapping("/m/bbs_view.go")
+	public String mBbsViewController(
+			@RequestParam(value="projectSeq", required=false, defaultValue="0") int projectSeq, 
+			@RequestParam(value="bbsSeq", required = false, defaultValue="0") int bbsSeq, 
+			//@RequestParam(value="page", required = false, defaultValue="1") int page, 
+			Model model, HttpSession session
+		) {
+		
+		model.addAttribute("projectSeq", projectSeq);
+		model.addAttribute("bbsSeq", bbsSeq);
+	//	model.addAttribute("page", page);
+		model.addAttribute("bbsCommentSeq", 0);
+		return "m/bbs_view";
+	}
+	
+	@RequestMapping("/m/bbs_edit.go")
+	public String mBbsEditController(
+			@RequestParam(value = "bbsSeq", required = false, defaultValue="0") int bbsSeq, 
+			@RequestParam(value = "bbsType", required = false, defaultValue="0") int bbsType, 
+			@RequestParam(value = "projectSeq", required = false, defaultValue="0") int projectSeq, 
+			Model model, HttpSession session
+		) {
+		model.addAttribute("bbsType", 1);
+
+		model.addAttribute("projectSeq", projectSeq);
+		model.addAttribute("bbsSeq", bbsSeq);
+		
+		model.addAttribute("bbsType", bbsType);
+		return "m/bbs_edit";
+	}
+	
+	@RequestMapping("/m/files_list.go")
+	public String mFilesListController(
+			@RequestParam(value = "projectSeq", required = false, defaultValue="0") int projectSeq, 
+			Model model, HttpSession session
+		) {
+
+		model.addAttribute("projectSeq", projectSeq);
+		model.addAttribute("dataType", 0);
+		return "m/files_list";
+	}
+	
+	@RequestMapping("/m/files_view.go")
+	public String mFilesViewController(
+			@RequestParam(value = "dataSeq", required = false, defaultValue="0") int dataSeq, 
+			@RequestParam(value = "projectSeq", required = false, defaultValue="0") int projectSeq, 
+			Model model, HttpSession session
+		) {
+
+		model.addAttribute("dataSeq", dataSeq);
+		model.addAttribute("projectSeq", projectSeq);
+		return "m/files_view";
+	}
+	
+	@RequestMapping("/m/files_edit.go")
+	public String mFilesEditController(
+			@RequestParam(value = "projectSeq", required = false, defaultValue="0") int projectSeq, 
+			@RequestParam(value = "dataSeq", required = false, defaultValue="0") int dataSeq, 
+			Model model, HttpSession session
+		) {
+
+		model.addAttribute("projectSeq", projectSeq);
+		model.addAttribute("dataSeq", dataSeq);
+		return "m/files_edit";
+	}
+	
+	@RequestMapping("/admin/admin/project_list.go")
+	public String AdminProjectListController(
+			@RequestParam(value = "companySeq", required = false, defaultValue="0") int companySeq, 
+		
+			Model model, HttpSession session
+		) {
+
+		model.addAttribute("companySeq", companySeq);
+	
+		return "admin/project/project_list";
+	}
+	
+	@RequestMapping("/admin/admin/company_view.go")
+	public String AdminProjectViewController(
+			@RequestParam(value = "companySeq", required = false, defaultValue="0") int companySeq, 
+		
+			Model model, HttpSession session
+		) {
+
+		model.addAttribute("companySeq", companySeq);
+	
+		return "admin/company/company_view";
+	}
+	
+	@RequestMapping("/admin/admin/company_admin.go")
+	public String AdmincompanyController(
+			@RequestParam(value = "companySeq", required = false, defaultValue="0") int companySeq, 
+			@RequestParam(value = "userId", required = false, defaultValue="") String userId, 
+			Model model, HttpSession session
+		) {
+		
+		
+		User user = userDao.getUser(userId);
+		if(user==null){
+			user=new User();
+		}
+		model.addAttribute("companySeq", companySeq);
+		model.addAttribute("user", user);
+		return "admin/company/company_admin";
+	}
+	@RequestMapping("/admin/admin/company.go")
+	public String companyController(
+			@RequestParam(value = "companySeq", required = false, defaultValue="0") int companySeq, 
+			
+			Model model, HttpSession session
+		) {
+		
+		Company cc = companyDao.getCompany(companySeq);
+		
+		model.addAttribute("companySeq", companySeq);
+		model.addAttribute("company", cc);
+		
+		return "admin/company/company";
+	}
+	@RequestMapping("/admin/admin/company_list.go")
+	public String companyListController(
+		
+			
+			Model model, HttpSession session
+		) {
+		
+	
+		return "admin/company/company_list";
+	}
+	
+	@RequestMapping("/admin/admin/user_list.go")
+	public String AdminUserListController(
+			
+			Model model, HttpSession session
+		) {
+
+		model.addAttribute("companySeq", 1);
+	
+		return "admin/user/user_list";
+	}
+	
+	
+}

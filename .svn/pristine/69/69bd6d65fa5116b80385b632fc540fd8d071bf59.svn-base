@@ -1,0 +1,249 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/common/header.jsp"  %>
+
+
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	projectAdmin.projectEdit(dataForm,1);
+	var options = {
+			//target :		'#user-join-result',
+			beforeSubmit :	projectAdmin.formCheck,
+			success :		projectAdmin.formSuccess
+		};
+		$('#dataForm').ajaxForm(options);
+	
+});
+
+$(function() {
+    $.datepicker.setDefaults( $.datepicker.regional[ "ko" ] );
+    $( ".datepicker" ).datepicker(
+        {
+        	dateFormat: 'yy-mm-dd',
+ 	       showButtonPanel: true
+        }
+    );
+});
+
+</script>
+
+<style>
+.select-search { border:1px solid #ddd; padding-bottom:4px;}
+</style>
+
+
+</head>
+
+<%@ include file="/WEB-INF/views/admin/admin_header.jsp"  %>
+
+<section class="main-cover main-row">
+	<section id="main">
+		
+		<%@ include file="/WEB-INF/views/admin/admin_menu.jsp"  %>
+
+		<section id="contents">
+			<header class="panel">
+				 ■ 프로젝트 ${projectSeq>0 ? '수정' : '등록' }
+			</header>
+		
+			<div class="contents-block">
+			
+				<h1>프로젝트 ${projectSeq>0 ? '수정' : '등록' }</h1>
+				
+				<div class="contents-main">
+
+					<form method="post" name="dataForm" id="dataForm" enctype="multipart/form-data" action="/proc/file_upload.go" >
+						<input type="hidden" name="projectSeq" value="${projectSeq}">
+						<input type="hidden" name="companySeq1" value="${companySeq}">
+						<input type="hidden" name="type" value="${projectSeq}">
+						<input type="hidden" name="isThumb" value="0">
+						<input type="hidden" name="addThumb" value="1">
+						<input type="hidden" name="fileName" id="fileName" value="">
+					<table class="edit" style="width:700px;">
+					<tr>
+						<th>로고</th>
+						<td>
+						
+							<ul class="file-add">
+								<li id="img_1"></li>
+							</ul>
+							<input type="file" name="photo"  style="cursor:pointer;" onchange="document.getElementById('upload-btn').click();">
+							<button type="submit" id="upload-btn" class="btn-hide"></button>
+						</td>
+						
+					</tr>
+					<tr>
+						<th>업체</th>
+						<td>
+							<select name="companySeq" id="companySelector">
+							</select>
+						</td>
+						<th>프로젝트명</th>
+						<td>
+							<input type="text" name="projectName" id="projectName" value="" class="itext">
+						</td>
+					</tr>
+					<tr>
+						<th>기간</th>
+						<td>
+							<input type="text" name="projectStartDay" id="projectStartDay" class="itext datepicker"  value="" placeholder="시작일" style="width:80px;">
+							<input type="text" name="projectEndDay" id="projectEndDay" class="itext datepicker" value="" placeholder="종료일" style="width:80px;">
+						</td>
+						<th>프로젝트상태</th>
+						<td>
+							<select name="projectStatus">
+								<option value="1" id="projectStatus1">진행예정</option>
+								<option value="2" id="projectStatus2">진행</option>
+								<option value="3" id="projectStatus3">개발완료</option>
+								<option value="4" id="projectStatus4">검수중</option>
+								<option value="5" id="projectStatus5">마감</option>
+							</select>
+						</td>
+					</tr>
+					</table>
+
+					<dl class="edit">
+						<dt>프로젝트내용</dt>
+						<dd><textarea name="projectComment" id="projectComment" style="width:700px;height:100px;"></textarea></dd>
+						<dt>개발환경</dt>
+						<dd><textarea name="projectInfo" id="projectInfo" style="width:700px;height:200px;"></textarea></dd>
+					</dl>
+
+					<div class="tool-bar" style="width:800px;">
+						<button type="button" class="btn btn-blue" style="width:100px;" onclick="projectAdmin.projectEditDo(this.form);">저장</button>
+						<span id="projectDeleteBtn"><button type="button" onclick="projectAdmin.deleteProject(this.form);" class="btn">삭제</button></span>
+					</div>
+
+					</form>	
+					<h2>담당자</h2>
+					<form method="post"  onsubmit="return  false;">
+					<input type="hidden" name="projectSeq" class="projectSeq" value="" >
+						<table class="list">
+						<colgroup>
+							<col width="10%">
+							<col width="10%">
+							<col width="10%">
+							<col width="*">
+						</colgroup>
+						<thead>
+							<tr>
+								<th>PART</th>
+								<th>이름</th>
+								<th>관리</th>
+								<th>&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody class="worker-list">
+						</tbody>
+						<tfoot>
+							<input type="hidden" name="projectAdminSeq" value="0" >
+							<tr>
+								<td>
+									<select name="projectAdminPart">
+										<option value="">파트선택</option>
+										<option value="ANDROID"> ANDROID </option>
+										<option value="IOS"> IOS </option>
+										<option value="WEB"> WEB </option>
+										<option value="SERVER"> SERVER </option>
+										<option value="DESIGN"> DESIGN </option>
+										<option value="PC"> PC </option>
+									</select>
+								</td>
+								<td>
+									<select name="userId" class="workerSelect">
+									</select>
+								</td>
+								<td class="add-btn2">
+									<button type="button" class="btn btn-blue" style="width:73px;" onclick="projectAdmin.AdminEdit(this.form,'')">추가</button>
+								</td>
+								<td>&nbsp;</td>
+							</tr>
+						
+						</tfoot>
+						</table>
+					</form>
+					<h2>일정관리</h2>
+					
+				<form method="post"  onsubmit="return false;">
+				<input type="hidden" name="projectSeq" class="projectSeq" value="" >
+				<input type="hidden" name="todoStatus" value="0" >
+				
+				<table class="list">
+					<colgroup>
+						<col width="5%">
+						<col width="5%">
+						<col width="5%">
+						<col width="10%">
+						<col width="10%">
+						<col width="*">
+						<col width="70">
+						<col width="70">
+						<col width="70">
+						<col width="70">
+						<col width="90">
+					</colgroup>
+					<thead>
+						<tr>
+							<th>PART</th>
+							<th>이름</th>
+							<th>모듈</th>
+							<th>프로세스</th>
+							<th>TODO</th>
+							<th>작업 내용</th>
+							<th>시작일</th>
+							<th>종료일</th>
+							<th>상태</th>
+							<th>완료일</th>
+							<th>관리</th>
+						</tr>
+					</thead>
+					<tbody class="scheduleList">
+					</tbody>
+					<tfoot>
+					<input type="hidden" name="todoSeq" value="0" >
+						<tr>
+						
+							<td>
+								<select name="todoPart">
+									<option value="">파트선택</option>
+									<option value="ANDROID"> ANDROID </option>
+									<option value="IOS"> IOS </option>
+									<option value="WEB"> WEB </option>
+									<option value="SERVER"> SERVER </option>
+									<option value="DESIGN"> DESIGN </option>
+									<option value="PC"> PC </option>
+								</select>
+							</td>
+							<td>
+								<select name="userId" class="workerSelectIn">
+								</select>
+							</td>
+							<td><input type="text" class="itext" name="module"></td>
+							<td><input type="text" class="itext" name="process"></td>
+							<td><input type="text" class="itext" name="todo"></td>
+							<td><input type="text" class="itext" name="todoComment"></td>
+							<td><input type="text" class="itext" name="todoStartday" class="itext datepicker" placeholder="시작일" style="width:80px;"></td>
+							<td><input type="text" class="itext" name="todoEndDay" class="itext datepicker" placeholder="종료일" style="width:80px;"></td>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+							<td class="add-btn"><button type="button" class="btn btn-blue" style="width:73px;" onclick="projectAdmin.TodoEdit(this.form,'+i+')">추가</button></td>
+						</tr>
+					</tfoot>
+					</table>
+					</form>
+					
+					<div class="paging-block">
+					</div>
+
+				</div>
+			</div>
+		</section>
+	</section>
+</section>
+
+<%@ include file="/WEB-INF/views/admin/admin_footer.jsp"  %>
+
+</body>
+</html>

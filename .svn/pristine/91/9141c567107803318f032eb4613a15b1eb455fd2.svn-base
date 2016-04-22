@@ -1,0 +1,98 @@
+package kr.nomad.mars.dao;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import kr.nomad.mars.dto.FormData;
+
+public class FormDataDao {
+	
+	private JdbcTemplate jdbcTemplate;
+	public void setDataSource(DataSource dataSource) {
+	    this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
+	private RowMapper formdataMapper = new RowMapper() {
+		public FormData mapRow(ResultSet rs, int rowNum) throws SQLException {
+			FormData formdata = new FormData();
+			formdata.setFormSeq(rs.getInt("form_seq"));
+			formdata.setFormType(rs.getString("form_type"));
+			formdata.setFormTitle(rs.getString("form_title"));
+			formdata.setUserId(rs.getString("user_id"));
+			formdata.setFormRegDate(rs.getString("form_reg_date"));
+			formdata.setFormFileName(rs.getString("form_file_name"));
+			return formdata;
+		}
+	};
+
+	public void addFormData(final FormData formdata) {
+		String query = "" +
+				"INSERT INTO T_NF_FORM_DATA " +
+				"	(form_seq, form_type, form_title, user_id, form_reg_date, form_file_name) " +
+				"VALUES " +
+				"	(?, ?, ?, ?, ?, ?) ";
+		this.jdbcTemplate.update(query, new Object[] {
+			formdata.getFormSeq(),
+			formdata.getFormType(),
+			formdata.getFormTitle(),
+			formdata.getUserId(),
+			formdata.getFormRegDate(),
+			formdata.getFormFileName()
+		});
+	}
+
+	public void deleteFormData(String form_seq) {
+		String query = "DELETE FROM T_NF_FORM_DATA WHERE form_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] { form_seq });
+	}
+
+	public void updateFormData(FormData formdata) { 
+		String query = "" + 
+				"UPDATE T_NF_FORM_DATA SET " +
+				"	form_seq = ?, " +
+				"	form_type = ?, " +
+				"	form_title = ?, " +
+				"	user_id = ?, " +
+				"	form_reg_date = ?, " +
+				"	form_file_name = ? " +
+				"WHERE form_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] {
+			formdata.getFormSeq(),
+			formdata.getFormType(),
+			formdata.getFormTitle(),
+			formdata.getUserId(),
+			formdata.getFormRegDate(),
+			formdata.getFormFileName()
+		});
+	}
+
+	public FormData getFormData(String form_seq) {
+		String query = "" + 
+				"SELECT form_seq, form_type, form_title, user_id, form_reg_date, form_file_name " +
+				"FROM T_NF_FORM_DATA " +
+				"WHERE form_seq = ? ";
+		return (FormData)this.jdbcTemplate.queryForObject(query, new Object[] { form_seq }, this.formdataMapper);
+	}
+
+	public List<FormData> getFormDataList(int page, int itemCountPerPage) {
+		String query = "" +
+				"SELECT TOP "+ itemCountPerPage +" form_seq, form_type, form_title, user_id, form_reg_date, form_file_name " +
+				"FROM T_NF_FORM_DATA " +
+				"WHERE form_seq <= ( " +
+				"	SELECT MIN(form_seq) " +
+				"	FROM ( " +
+				"		SELECT TOP "+ ((page-1) * itemCountPerPage + 1) +" form_seq " +
+				"		FROM T_NF_FORM_DATA " +
+				"		ORDER BY form_seq DESC " +
+				"	) AS A) " +
+				"ORDER BY form_seq DESC";
+		return (List<FormData>)this.jdbcTemplate.query(query, this.formdataMapper);
+	}
+
+}

@@ -1,0 +1,202 @@
+package kr.nomad.mars.dao;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import kr.nomad.mars.dto.Project;
+
+public class ProjectDao {
+
+	private JdbcTemplate jdbcTemplate;
+	public void setDataSource(DataSource dataSource) {
+	    this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
+	private RowMapper projectMapper = new RowMapper() {
+		public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Project project = new Project();
+			project.setProjectSeq(rs.getInt("project_seq"));
+			project.setCompanySeq(rs.getInt("company_seq"));
+			project.setProjectName(rs.getString("project_name"));
+			project.setProjectComment(rs.getString("project_comment"));
+			project.setProjectStartDay(rs.getString("project_start_day"));
+			project.setProjectEndDay(rs.getString("project_end_day"));
+			project.setProjectRegDate(rs.getString("project_reg_date"));
+			project.setProjectStatus(rs.getString("project_status"));
+			project.setProjectInfo(rs.getString("project_info"));
+			project.setProjectFileName(rs.getString("project_file_name"));
+			return project;
+		}
+	};
+
+	private RowMapper VprojectMapper = new RowMapper() {
+		public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
+			Project project = new Project();
+			project.setProjectSeq(rs.getInt("project_seq"));
+			project.setCompanySeq(rs.getInt("company_seq"));
+			project.setProjectName(rs.getString("project_name"));
+			project.setProjectComment(rs.getString("project_comment"));
+			project.setProjectStartDay(rs.getString("project_start_day"));
+			project.setProjectEndDay(rs.getString("project_end_day"));
+			project.setProjectRegDate(rs.getString("project_reg_date"));
+			project.setProjectStatus(rs.getString("project_status"));
+			project.setProjectInfo(rs.getString("project_info"));
+			project.setProjectFileName(rs.getString("project_file_name"));
+			project.setCompanyName(rs.getString("company_name"));
+			project.setCompanyComment(rs.getString("company_comment"));
+			project.setProgressPercent(Integer.parseInt(rs.getString("progress_percent")));
+			project.setAndPercent(Integer.parseInt(rs.getString("and_percent")));
+			project.setIosPercent(Integer.parseInt(rs.getString("ios_percent")));
+			project.setWebPercent(Integer.parseInt(rs.getString("web_percent")));
+			project.setServerPercent(Integer.parseInt(rs.getString("server_percent")));
+			project.setDesignPercent(Integer.parseInt(rs.getString("design_percent")));
+			return project;
+		}
+	};
+	public void addProject(final Project project) {
+		String query = "" +
+				"INSERT INTO T_NF_PROJECT " +
+				"	( company_seq, project_name, project_comment,"
+				+ " project_start_day, project_end_day, project_reg_date,"
+				+ " project_status, project_info, project_file_name) " +
+				"VALUES " +
+				"	( ?, ?, ?,"
+				+ " ?, ?, getDate(),"
+				+ " ?, ?, ?) ";
+		this.jdbcTemplate.update(query, new Object[] {
+		
+			project.getCompanySeq(),
+			project.getProjectName(),
+			project.getProjectComment(),
+			project.getProjectStartDay(),
+			project.getProjectEndDay(),
+			project.getProjectStatus(),
+			project.getProjectInfo(),
+			project.getProjectFileName()
+		});
+	}
+
+	public void deleteProject(String project_seq) {
+		String query = "DELETE FROM T_NF_PROJECT WHERE project_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] { project_seq });
+	}
+
+	public void updateProject(Project project) { 
+		String query = "" + 
+				"UPDATE T_NF_PROJECT SET " +
+			
+				"	company_seq = ?, " +
+				"	project_name = ?, " +
+				"	project_comment = ?, " +
+				"	project_start_day = ?, " +
+				"	project_end_day = ?, " +
+				
+				"	project_status = ?, " +
+				"	project_info = ?, " +
+				"	project_file_name = ? " +
+				"WHERE project_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] {
+			
+			project.getCompanySeq(),
+			project.getProjectName(),
+			project.getProjectComment(),
+			project.getProjectStartDay(),
+			project.getProjectEndDay(),
+		
+			project.getProjectStatus(),
+			project.getProjectInfo(),
+			project.getProjectFileName(),
+			project.getProjectSeq()
+		});
+	}
+
+	public Project getProject(int project_seq) {
+		String query = "" + 
+				"SELECT * " +
+				"FROM V_NF_PROJECT " +
+				"WHERE project_seq = ? ";
+		try {
+			return (Project)this.jdbcTemplate.queryForObject(query, new Object[] { project_seq }, this.VprojectMapper);
+		} catch (Exception e) {
+			return new Project();
+		}
+	}
+
+	public List<Project> getProjectList(String status,int companySeq,String sort,String colName,String startDay,String endDay,String keyword,int page,int itemCountPerPage) {
+		String con="where 1=1";
+		
+		if(companySeq>0){
+			con+=" and company_seq = "+companySeq;
+		}
+		if(!startDay.equals("") && !endDay.equals("")){
+			con+=" and project_start_day > '"+startDay+"' and  project_start_day < '"+endDay+"' ";
+		}
+		if(!keyword.equals("")){
+			con+=" and ( project_name like '%"+keyword+"%' or project_comment like '%"+keyword+"%' or company_name like '%"+keyword+"%'  )";
+		}
+		if(!status.equals("")){
+			con+=" and project_status ='"+status+"'" ;
+		}
+		
+		String order= " project_reg_date ";
+		String order2 =" desc ";
+		
+		if(!colName.equals("")){
+			order=" "+colName;
+		}
+		if(!sort.equals("")){
+			order2=" "+sort;
+		}
+		String query = "" 
+				+ "	SELECT * FROM ( "
+				+ "		SELECT "
+				+ "			ROW_NUMBER() OVER(order by "+order+" "+order2+") as row_seq, "
+				+ "			A.* "
+				+"  from v_nf_project as A "+con
+				+ "	) AS a WHERE row_seq BETWEEN (("+page+" - 1) * "+itemCountPerPage+") +1 AND "+page+" * "+itemCountPerPage+" ";
+		return (List<Project>)this.jdbcTemplate.query(query, this.VprojectMapper);
+	}
+	
+	public int getProjectCount(String status,int companySeq,String startDay,String endDay,String keyword) {
+		String con="where 1=1";
+		
+		if(companySeq>0){
+			con+=" and company_seq = "+companySeq;
+		}
+		if(!startDay.equals("") && !endDay.equals("")){
+			con+=" and project_start_day > '"+startDay+"' and project_start_day < '"+endDay+"' ";
+		}
+		if(!keyword.equals("")){
+			con+=" and ( project_name like '%"+keyword+"%' or project_comment like '%"+keyword+"%' or company_name like '%"+keyword+"%' )";
+		}
+		if(!status.equals("")){
+			con+=" and project_status ='"+status+"'" ;
+		}
+		
+		
+		String query = "" 
+				+ "	SELECT count(*) FROM  "
+				+"   v_nf_project "+con;
+		return this.jdbcTemplate.queryForInt(query);
+	}
+	
+
+	public List<Project> getProjectListNotPaging(int companySeq) {
+		String con="where 1=1";
+		
+		if(companySeq>0){
+			con+=" and company_seq = "+companySeq;
+		}
+	
+		String query = "" 
+				+ "	SELECT * FROM  "
+				+"   v_nf_project "+con;
+		return (List<Project>)this.jdbcTemplate.query(query, this.VprojectMapper);
+	}
+}

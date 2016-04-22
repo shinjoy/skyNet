@@ -1,0 +1,854 @@
+package kr.nomad.mars;
+
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.google.gson.Gson;
+
+import kr.nomad.mars.dao.BbsCommentDao;
+import kr.nomad.mars.dao.BbsDao;
+import kr.nomad.mars.dao.BbsFilesDao;
+import kr.nomad.mars.dao.DataDao;
+import kr.nomad.mars.dao.ProjectAdminDao;
+import kr.nomad.mars.dao.ProjectDao;
+import kr.nomad.mars.dao.UserDao;
+import kr.nomad.mars.dto.Bbs;
+import kr.nomad.mars.dto.BbsComment;
+import kr.nomad.mars.dto.BbsFiles;
+import kr.nomad.mars.dto.Data;
+import kr.nomad.mars.dto.Project;
+import kr.nomad.mars.dto.ProjectAdmin;
+import kr.nomad.mars.dto.User;
+import kr.nomad.util.FileMime;
+import kr.nomad.util.FileWrite;
+import kr.nomad.util.Paging;
+import kr.nomad.util.Response;
+import kr.nomad.util.encrypt.CryptoNew;
+import kr.nomad.util.encrypt.CryptoSeedData;
+import net.sf.json.JSONObject;
+
+
+@Controller
+public class MobileController {
+	
+	@Autowired UserDao userDao;
+	@Autowired ProjectDao projectDao;
+	@Autowired BbsDao bbsDao;
+	@Autowired BbsCommentDao bbsCommentDao;
+	@Autowired BbsFilesDao bbsfilesDao;
+	@Autowired DataDao dataDao;
+	@Autowired ProjectAdminDao projectAdminDao;
+	
+	// 페이지당 아이템 갯수
+	@Value("#{config['page.itemCountPerPage']}")
+	int ITEM_COUNT_PER_PAGE;
+
+	// 페이징당 페이지 갯수
+	@Value("#{config['page.pageCountPerPaging']}")
+	int PAGE_COUNT_PER_PAGING;
+
+	// 파일 루트
+	@Value("#{config['file.root']}")
+	String FILE_ROOT;
+
+	String FILE_PATH = "";
+	String FILE_LOCAL_PATH = "";
+
+	// 파일 최대크기(Mb)
+	@Value("#{config['file.maxSize']}")
+	int FILE_MAX_SIZE;
+	//모바일 로그인
+	@RequestMapping("/api_view.go")
+	public String login(
+			HttpServletRequest request,
+			
+			HttpServletResponse res, Model model	
+	) {
+	
+		return "api_view";
+	}
+	
+	//모바일 로그인
+	@RequestMapping("/proc/login_do.go")
+	public String login(
+		HttpServletRequest request,
+		@RequestParam(value = "userId", required = false, defaultValue="") String userId,
+		@RequestParam(value = "userPw", required = false, defaultValue="") String userPw,
+		HttpServletResponse res, Model model	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		int Idchk =userDao.correctId(userId);
+		
+		if(Idchk>0){
+			//String enPw = CryptoNew.encrypt(userPw);
+			int chk =userDao.getUserChk(userId,userPw);  //암호화 해야함.
+			if(chk>0){
+				
+				User user = userDao.getUserCompany(userId);
+				HttpSession ss =request.getSession();
+				ss.setAttribute("USER_ID", user.getUserId());
+				ss.setAttribute("USER_NAME", user.getUserName());
+				ss.setAttribute("USER_TYPE", user.getUserType());
+				ss.setAttribute("COMPANY_NAME", user.getCompanyName());
+				
+				map.put("result", true);
+				
+				
+			}else{
+				map.put("result", false);
+				map.put("message", "비밀번호가 일치하지 않습니다.");
+			}
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID가 존재하지 않습니다.");
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}
+	//비밀번호 찾기
+	@RequestMapping("/proc/find_pw.go")
+	public String findPw(
+		HttpServletRequest request,
+		@RequestParam(value = "userId", required = false, defaultValue="") String userId,
+		@RequestParam(value = "userPhone", required = false, defaultValue="") String userPhone,
+		HttpServletResponse res, Model model	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		int Idchk =userDao.correctIdPhone(userId,userPhone);
+		
+		if(Idchk>0){
+			//String enPw = CryptoNew.encrypt(userPw);
+		
+				
+			User user= userDao.getUser(userId);
+			//String enPw = CryptoNew.encrypt(user.getUserPhone());
+			
+			map.put("result", true);
+			map.put("message", "");	//패스워드
+				
+				
+			
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID가 존재하지 않습니다.");
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}	
+
+	//아이디 찾기
+	@RequestMapping("/proc/find_id.go")
+	public String findId(
+		HttpServletRequest request,
+	
+		@RequestParam(value = "userPhone", required = false, defaultValue="") String userPhone,
+		HttpServletResponse res, Model model	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		User user=userDao.Phone(userPhone);
+		
+		if(user!=null){
+			map.put("result", true);
+			map.put("message", user.getUserId());	
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}
+	
+	
+	////////////////////////////////////////////////////////////프로젝트
+	/*//프로젝트 리스트
+	@RequestMapping("/proc/project_list.go")
+	public String projectList(
+		HttpServletRequest request,
+		
+		@RequestParam(value = "page", required = false, defaultValue="1") int page,
+	
+		HttpServletResponse res, Model model,HttpSession ss	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+		List<Project>list=null;
+		int count =0;
+		if(user!=null){
+			
+			if(user.getUserType()==1){ //내부직원
+				list=projectDao.getProjectList("",0,"","","","","",page,ITEM_COUNT_PER_PAGE);
+				count=projectDao.getProjectCount("",0,"","","");
+				
+			}else{//고객
+				list=projectDao.getProjectList("",user.getCompanySeq(),"","","","","",page,ITEM_COUNT_PER_PAGE);
+				count=projectDao.getProjectCount("",user.getCompanySeq(),"","","");
+			}
+			String paging = Paging.getPaging(page, count, ITEM_COUNT_PER_PAGE,PAGE_COUNT_PER_PAGING);
+			
+			map.put("paging", paging);
+			map.put("currentPage", page);
+			map.put("list", list);
+			map.put("result", true);
+		
+			
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}	*/
+	
+	// 프로젝트 상세
+	@RequestMapping("/proc/project_View.go")
+	public String projectView(HttpServletRequest request,
+		
+			@RequestParam(value = "projectSeq", required = false, defaultValue="0") int projectSeq,
+			HttpServletResponse res,HttpSession ss,
+			Model model) {
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+		
+		int count = 0;
+		if (user != null) {
+			Project pr = projectDao.getProject(projectSeq);
+			List<ProjectAdmin>list= projectAdminDao.getProjectAdminList(projectSeq);
+			int requireCount=bbsDao.getBbsCount("",projectSeq, "1", "0");
+			int bugCount=bbsDao.getBbsCount("",projectSeq, "2", "0");
+			map.put("pr",pr);
+			map.put("list",list);
+			map.put("requireCount",requireCount);
+			map.put("bugCount",bugCount);
+		} else {
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+
+	}
+	
+	
+	////////////////////////////////////게시판
+	//게시판 리스트
+	@RequestMapping("/proc/bbs_list.go")
+	public String bbsList(
+		HttpServletRequest request,
+		
+		@RequestParam(value = "bbsType", required = false, defaultValue="") String bbsType,//1요청2버그
+		@RequestParam(value = "bbsType2", required = false, defaultValue="") String bbsType2,//빈값 둘다,0전체 1내부공개
+		@RequestParam(value = "projectSeq", required = false, defaultValue="0") int projectSeq,
+		@RequestParam(value = "page", required = false, defaultValue="") int page,
+		@RequestParam(value = "sort", required = false, defaultValue="") String sort,
+		@RequestParam(value = "colName", required = false, defaultValue="") String colName,
+		@RequestParam(value = "keyword", required = false, defaultValue="") String keyword,
+		HttpServletResponse res, Model model,HttpSession ss	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		User user = userDao.getUser(/*(String)ss.getAttribute("USER_ID")*/"jo");
+		List<Bbs>list=null;
+		int count =0;
+		if(user!=null){
+			if(user.getUserType()==1){ //내부직원
+				list=bbsDao.getBbsList(keyword,sort,colName,projectSeq,bbsType,bbsType2,page,ITEM_COUNT_PER_PAGE);
+				count=bbsDao.getBbsCount(keyword,projectSeq,bbsType,bbsType2);
+			}else{
+				list=bbsDao.getBbsList(keyword,sort,colName,projectSeq,bbsType,"0",page,ITEM_COUNT_PER_PAGE);
+				count=bbsDao.getBbsCount(keyword,projectSeq,bbsType,"0");
+			}
+			
+			
+			String paging = Paging.getPaging(page, count, ITEM_COUNT_PER_PAGE,PAGE_COUNT_PER_PAGING);
+			
+			map.put("paging", paging);
+			map.put("currentPage", page);
+			map.put("list", list);
+
+			map.put("result", true);
+			map.put("message", user.getUserId());
+			
+			
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}	
+	//게시판 상세화면
+	@RequestMapping("/proc/bbs_view.go")
+	public String bbsList(
+		HttpServletRequest request,
+	
+		@RequestParam(value = "bbsSeq", required = false, defaultValue="0") int bbsSeq,
+		@RequestParam(value = "page", required = false, defaultValue="") int page,
+
+		HttpServletResponse res, Model model,HttpSession ss	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+		List<BbsComment>list=null;
+		int count =0;
+		if(user!=null){
+			
+			Bbs bbs =bbsDao.getBbs(bbsSeq);
+			list=bbsCommentDao.getBbsCommentList(bbsSeq,page, ITEM_COUNT_PER_PAGE);
+			count=bbsCommentDao.getBbsCommentCount(bbsSeq);
+			List<BbsFiles>fileList= bbsfilesDao.getBbsFilesList(bbsSeq);
+			
+			String paging = Paging.getPaging(page, count, ITEM_COUNT_PER_PAGE,PAGE_COUNT_PER_PAGING);
+			
+			map.put("bbs", bbs);
+			map.put("paging", paging);
+			map.put("currentPage", page);
+			map.put("list", list);
+			map.put("fileList", fileList);
+			map.put("result", true);
+			map.put("message", user.getUserId());
+			
+			
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}
+	
+	//게시판 등록
+	@RequestMapping("/proc/bbs_edit_do.go")
+	public String bbsEditDo(
+		HttpServletRequest request,
+		
+		@RequestParam(value = "bbsSeq", required = false, defaultValue="0") int bbsSeq,
+		@RequestParam(value = "projectSeq", required = false, defaultValue="") int projectSeq,
+		@RequestParam(value = "bbsType", required = false, defaultValue="1") String bbsType,//1요청2버그
+		@RequestParam(value = "bbsType2", required = false, defaultValue="0") String bbsType2,//0전체 1내부공개
+		@RequestParam(value = "bbsTitle", required = false, defaultValue="") String bbsTitle,
+		@RequestParam(value = "bbsContents", required = false, defaultValue="") String bbsContents,
+		@RequestParam(value = "fileName", required = false, defaultValue="") List<MultipartFile> multipartFiles,
+		@RequestParam(value = "sendSms", required = false, defaultValue="0") int sendSms,
+		@RequestParam(value = "grade", required = false, defaultValue="0") String grade,
+		HttpServletResponse res, Model model,HttpSession ss	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try{
+			User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+			boolean chk=true;
+			
+			if(user!=null){
+				if(bbsSeq==0){//등록
+					Bbs bbs = new Bbs();
+					bbs.setProjectSeq(projectSeq);
+					bbs.setBbsType(bbsType);
+					bbs.setBbsType2(bbsType2);
+					bbs.setBbsTitle(bbsTitle);
+					bbs.setBbsContents(bbsContents);
+					bbs.setSendSms(sendSms);
+					bbs.setGrade(grade);
+					bbs.setUserId(user.getUserId());
+					bbsSeq =bbsDao.addBbs(bbs);
+					Project pp =projectDao.getProject(projectSeq);
+					map.put("result", true);
+					map.put("message", "등록되었습니다.");
+					if(user.getUserType()!=1){ //고객이 등록한 글이면,
+						List<ProjectAdmin>list =projectAdminDao.getProjectAdminList(projectSeq);
+						for(int i=0;i<list.size();i++){
+							ProjectAdmin pa = list.get(i);
+							
+							String msg =user.getUserName()+"("+pp.getProjectName()+")님의 문의 글이 등록되었습니다."; 
+							sendSmS(pa.getUserPhone(),msg,pa.getUserName());
+						}
+					}
+				}else{//수정
+					Bbs bbs = bbsDao.getBbs(bbsSeq);
+					if(bbs.getUserId().equals(user.getUserId())){
+						bbs.setProjectSeq(projectSeq);
+						bbs.setBbsType(bbsType);
+						bbs.setBbsType2(bbsType2);
+						bbs.setBbsTitle(bbsTitle);
+						bbs.setBbsContents(bbsContents);
+						bbs.setSendSms(sendSms);
+						bbs.setGrade(grade);
+						bbs.setUserId(user.getUserId());
+						List <BbsFiles>list =bbsfilesDao.getBbsFilesList(bbsSeq);
+						
+						for(int i=0;i<list.size();i++){
+							BbsFiles bf=list.get(i);
+							File file = new File(FILE_ROOT + bf.getFileName());
+							file.delete();
+						}
+						
+						bbsfilesDao.deleteBbsFiles(bbsSeq);
+						bbsDao.updateBbs(bbs);
+					}else{
+						chk=false;
+						map.put("result", false);
+						map.put("message", "수정 권한이 없습니다.");
+					}
+				
+					
+					
+				}
+				String FILE_PATH = "/data/bbs/";
+				String FILE_LOCAL_PATH = FILE_ROOT + FILE_PATH;
+				if(chk){
+					for (int i=0; i<multipartFiles.size(); i++) {
+						MultipartFile multipartFile = (MultipartFile)multipartFiles.get(i);
+						String fileName = multipartFile.getOriginalFilename();
+						FileWrite fileWrite = new FileWrite();
+						String uploadFileName = fileWrite.writeFileTempName(multipartFile, FILE_LOCAL_PATH, fileName);
+						uploadFileName = URLEncoder.encode(uploadFileName,"UTF-8");
+						
+						File file = new File(FILE_LOCAL_PATH + uploadFileName);
+						String mimeType = FileMime.getMimeType(file).split("[/]")[0];
+						
+						BbsFiles bf = new BbsFiles();
+						bf.setBbsSeq(bbsSeq);
+						bf.setFileName(FILE_PATH+uploadFileName);
+						bf.setFileExt(mimeType);
+						bbsfilesDao.addBbsFiles(bf);
+					}
+				}
+				
+			}else{
+				map.put("result", false);
+				map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+			}
+		}catch(Exception e){
+			map.put("result", false);
+			map.put("message", e.getMessage());
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}
+	
+	@RequestMapping("/proc/bbs_delete.go")
+	public String bbsDeleteDoController(
+			
+			@RequestParam(value="bbsSeq", required=false, defaultValue="0") int bbsSeq,
+			@RequestParam(value="bbsCommentSeq", required=false, defaultValue="0") int bbsCommentSeq,
+			HttpServletResponse res,HttpSession ss
+		){
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+		if(user!=null){
+			Bbs bbs =bbsDao.getBbs(bbsSeq);
+			BbsComment bc =bbsCommentDao.getBbsComment(bbsCommentSeq);
+			if(bbs.getUserId().equals(user.getUserId())||user.getUserType()==1||bc.getUserId().equals(user.getUserId())){
+				if(bbsCommentSeq==0){ ///본글삭제
+					
+					// 파일 삭제
+					List <BbsFiles>list =bbsfilesDao.getBbsFilesList(bbsSeq);
+					int fileDeleteCount = 0;		
+					String FILE_PATH = "/data/bbs/";
+					String FILE_LOCAL_PATH = FILE_ROOT + FILE_PATH;
+					for(int i=0; i<list.size(); i++) {
+						BbsFiles bf = list.get(i);
+						File file = new File(FILE_ROOT + bf.getFileName());
+						file.delete();
+					}
+					bbsfilesDao.deleteBbsFiles(bbsSeq);
+					bbsCommentDao.deleteBbsCommentBbsSeq(bbsSeq);
+					bbsDao.deleteBbs(bbsSeq);
+					
+				}else{
+					bbsCommentDao.deleteBbsComment(bbsCommentSeq);
+					int count = bbsCommentDao.getBbsCommentCount(bbsSeq);
+					bbsDao.updateStatusBbs(bc.getBbsCommentSeq(),bc.getrAnswerStatus(),count);	
+				}
+			
+				
+		
+				map.put("result", true);
+				map.put("message", "게시물이 삭제되었습니다.");
+			}else{
+				map.put("result", false);
+				map.put("message", "삭제권한이 없습니다.");
+			}
+			
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		
+		
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+	}
+	
+	//댓글 등록
+	@RequestMapping("/proc/bbs_comment_edit_do.go")
+	public String bbsCommentEditDo(
+		HttpServletRequest request,
+		
+		@RequestParam(value = "bbsSeq", required = false, defaultValue="0") int bbsSeq,
+		@RequestParam(value = "bbsCommentSeq", required = false, defaultValue="0") int bbsCommentSeq,
+		@RequestParam(value = "bbsContents", required = false, defaultValue="") String bbsContents,
+	
+
+		HttpServletResponse res, Model model,HttpSession ss	
+	) {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		User user = userDao.getUser(/*(String)ss.getAttribute("USER_ID")*/"jo");
+		if(user!=null){
+			if(bbsCommentSeq==0){
+				BbsComment bc = new BbsComment();
+				bc.setBbsSeq(bbsSeq);
+				bc.setBbsContents(bbsContents);
+				bbsCommentDao.addBbsComment(bc);
+				map.put("result", true);
+				map.put("message", "등록 되었습니다.");
+			}else{
+				BbsComment bc = bbsCommentDao.getBbsComment(bbsCommentSeq);
+				if(bc.getUserId().equals(user.getUserId())){
+					bc.setBbsSeq(bbsSeq);
+					bc.setBbsContents(bbsContents);
+					bbsCommentDao.updateBbsComment(bc);
+					map.put("result", true);
+					map.put("message", "수정 되었습니다.");
+				}else{
+					map.put("result", false);
+					map.put("message", "수정 권한이 없습니다.");
+				}
+				
+			}
+
+			BbsComment bc = bbsCommentDao.getTopBbsComment(bbsSeq);
+			int count = bbsCommentDao.getBbsCommentCount(bbsSeq);
+			bbsDao.updateStatusBbs(bc.getBbsCommentSeq(),bc.getrAnswerStatus(),count);
+			
+		
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+	
+	}
+	
+	////////////////////////// 자료실
+	
+	//자료실 리스트
+	@RequestMapping("/proc/data_room.go")
+	public String dataRoomList(
+		HttpServletRequest request,
+		
+		@RequestParam(value = "dataType", required = false, defaultValue="") String dataType,
+		//1:기획서 2:체크리스트3:기능목록표4:버그리스트5:디자인시안
+		
+		@RequestParam(value = "projectSeq", required = false, defaultValue="0") int projectSeq,
+		@RequestParam(value = "page", required = false, defaultValue="") int page,
+
+		HttpServletResponse res, Model model,HttpSession ss	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+		List<Data>list=null;
+		int count =0;
+		if(user!=null){
+		
+			list=dataDao.getDataList(dataType,projectSeq,page ,ITEM_COUNT_PER_PAGE);
+			count=dataDao.getDataCount(dataType,projectSeq);
+		
+			
+			
+			String paging = Paging.getPaging(page, count, ITEM_COUNT_PER_PAGE,PAGE_COUNT_PER_PAGING);
+			
+			map.put("paging", paging);
+			map.put("currentPage", page);
+			map.put("list", list);
+
+			map.put("result", true);
+			map.put("message", user.getUserId());
+			
+			
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}	
+	//자료실 상세화면
+	@RequestMapping("/proc/data_room_view.go")
+	public String dataRoomView(
+		HttpServletRequest request,
+	
+		@RequestParam(value = "projectSeq", required = false, defaultValue="0") int projectSeq,
+		@RequestParam(value = "dataSeq", required = false, defaultValue="") int dataSeq,
+
+		HttpServletResponse res, Model model,HttpSession ss	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+	
+		if(user!=null){
+			
+			Data data =dataDao.getData(dataSeq);
+			
+		
+			
+			map.put("data", data);
+		
+
+			map.put("result", true);
+			map.put("message", user.getUserId());
+			
+			
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}
+			
+	//자료실 등록
+	@RequestMapping("/proc/data_edit_do.go")
+	public String dataEditDo(
+		HttpServletRequest request,
+
+		@RequestParam(value = "dataSeq", required = false, defaultValue="0") int dataSeq,
+		@RequestParam(value = "projectSeq", required = false, defaultValue="") int projectSeq,
+		@RequestParam(value = "dataType", required = false, defaultValue="") String dataType,
+		@RequestParam(value = "dataTitle", required = false, defaultValue="") String dataTitle,
+		@RequestParam(value = "dataContents", required = false, defaultValue="") String dataContents,
+		@RequestParam(value = "dataFileName", required = false, defaultValue="") List<MultipartFile> multipartFiles,
+	
+		HttpServletResponse res, Model model,HttpSession ss	
+	) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		try{
+			User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+			boolean chk=true;
+			String FILE_PATH = "/data/data/";
+			String FILE_LOCAL_PATH = FILE_ROOT + FILE_PATH;
+			
+			if(user!=null){
+				if(dataSeq==0){//등록
+					Data data = new Data();
+					data.setDataContents(dataContents);
+					data.setDataType(dataType);
+					data.setDataTitle(dataTitle);
+					data.setProjectSeq(projectSeq);
+					data.setUserId(user.getUserId());
+				
+				MultipartFile multipartFile = (MultipartFile)multipartFiles;
+					String fileName = multipartFile.getOriginalFilename();
+					if(!fileName.equals("")){
+						FileWrite fileWrite = new FileWrite();
+						String uploadFileName = fileWrite.writeFileTempName(multipartFile, FILE_LOCAL_PATH, fileName);
+						uploadFileName = URLEncoder.encode(uploadFileName,"UTF-8");
+						
+						File file = new File(FILE_LOCAL_PATH + uploadFileName);
+						
+						data.setDataFileName(FILE_PATH+uploadFileName);
+					}
+					dataDao.addData(data);
+					
+					map.put("result", true);
+					map.put("message", "등록되었습니다.");
+					
+					
+				}else{//수정
+					Data data = dataDao.getData(dataSeq);
+					if(data.getUserId().equals(user.getUserId())){
+						data.setDataContents(dataContents);
+						data.setDataType(dataType);
+						data.setDataTitle(dataTitle);
+						data.setProjectSeq(projectSeq);
+						
+						if(!data.getDataFileName().equals("")){
+							File file = new File(FILE_LOCAL_PATH + data.getDataFileName());
+							file.delete();
+						}
+						MultipartFile multipartFile = (MultipartFile)multipartFiles;
+						String fileName = multipartFile.getOriginalFilename();
+						if(!fileName.equals("")){
+							FileWrite fileWrite = new FileWrite();
+							String uploadFileName = fileWrite.writeFileTempName(multipartFile, FILE_LOCAL_PATH, fileName);
+							uploadFileName = URLEncoder.encode(uploadFileName,"UTF-8");
+							
+							File file = new File(FILE_LOCAL_PATH + uploadFileName);
+						
+							data.setDataFileName(FILE_PATH+uploadFileName);
+						}
+					
+						dataDao.updateData(data);
+					}else{
+						chk=false;
+						map.put("result", false);
+						map.put("message", "수정 권한이 없습니다.");
+					}
+				
+					
+					
+				}
+			
+				
+			}else{
+				map.put("result", false);
+				map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+			}
+		}catch(Exception e){
+			map.put("result", false);
+			map.put("message", e.getMessage());
+		}
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+		
+	}
+
+	@RequestMapping("/proc/data_delete.go")
+	public String dataDeleteController(
+
+			@RequestParam(value="dataSeq", required=false, defaultValue="0") int dataSeq,
+		
+			HttpServletResponse res,HttpSession ss
+		){
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		User user = userDao.getUser((String)ss.getAttribute("USER_ID"));
+		if(user!=null){
+			Data data = dataDao.getData(dataSeq);
+			if(data.getUserId().equals(user.getUserId())||user.getUserType()==1){
+				// 파일 삭제
+					
+						
+					String FILE_PATH = "/data/data/";
+					String FILE_LOCAL_PATH = FILE_ROOT + FILE_PATH;
+					if(!data.getDataFileName().equals("")){
+						String fileName = data.getDataFileName();
+						File file = new File(FILE_ROOT + fileName);
+						file.delete();
+					}
+					dataDao.deleteData(dataSeq);
+				
+					
+		
+				map.put("result", true);
+				map.put("message", "게시물이 삭제되었습니다.");
+			}else{
+				map.put("result", false);
+				map.put("message", "삭제권한이 없습니다.");
+			}
+			
+		}else{
+			map.put("result", false);
+			map.put("message", "해당 ID 정보가 존재하지 않습니다.");
+		}
+		
+		
+		
+		JSONObject jsonObject = JSONObject.fromObject(map);
+		Response.responseWrite(res, jsonObject);
+		return null;
+	}
+	
+	void sendSmS(String num,String msg1,String userName) throws Exception{
+		
+		String getURL = "http://smmunja.nomadsoft.com/api/send.go";
+		
+		
+		String curl =URLEncoder.encode(msg1, "UTF-8");
+		getURL += "?clientId="+"nomad" ;
+		getURL += "&authCode="+"123" ;
+		getURL += "&title=NOMAD SOFT"  ;
+		getURL += "&msg="+ curl ;
+		getURL += "&isReservation=0" ;
+		getURL += "&receiverNumber="+num ;
+		getURL += "&receiverName="+userName ;
+		getURL += "&sendType=sms" ;
+		
+		
+		//String getURL = GET_URL + "?name=" + URLEncoder.encode("zhangshan", "utf-8");
+		URL getUrl = new URL(getURL);
+		// 끌어모았어 URL을 열 따라 연결할 URL 형식은 따라 할 URL.openConnection 함수, 
+		// 다시 다른 URLConnection 하위 클래스 대상, 여기 URL 한 http 때문에 실제 복귀 것은 HttpURLConnection
+		HttpURLConnection connection = (HttpURLConnection) getUrl.openConnection();
+		// 을 연결 하지만 실제로는 get request 반xp드시 다음 구의 connection.getInputStream () 함수 중 비로소 진정한 발 까지 서버
+		connection.connect();
+		// 확실한 입력 및 사용 Reader 읽기
+		BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));// 인코딩 설정 을 함께 했 다., 그렇지 않으면, 중국어
+		System.out.println("=============================");
+		System.out.println("Contents of get request");
+		System.out.println("=============================");
+		String lines;
+		String msg = "";
+		while ((lines = reader.readLine()) != null) {
+			String str = new String(lines.getBytes());
+			msg += URLDecoder.decode(str, "UTF-8");
+			System.out.println(lines);
+		}
+		reader.close();
+		// 연결 끊기
+		connection.disconnect();
+	}
+
+}

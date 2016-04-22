@@ -1,0 +1,41 @@
+@charset "utf-8";
+
+/* ########################### Reset  Style ########################### */
+body { background-color:#efeff4; }
+
+
+/* ########################### main ########################### */
+.login-img { width:50%; margin:50px auto 30px;}
+.login-img img { width:100%; }
+.login-img p { margin-bottom:10px; }
+.login-form .login-input { width:100%; margin-bottom:10px; background-color:#fff; }
+.login-form .login-input input { border:0; font-size:14px; margin:15px 20px; padding:5px; width:80%; }
+.login-form .login-button { width:100%; }
+.login-form .login-button button { background-color:#007aff; color:#fff; font-size:14px; padding:20px 0; width:100%; }
+.login-form .login-tools { text-align:center; margin:30px 0 0; }
+
+/* ########################### header ########################### */
+header { background-color:#f5f5f7; border-bottom:1px solid #b3b3b6; }
+header ul { display:table; width:100%; height:45px; }
+header ul li { display:table-cell; vertical-align:middle }
+header ul li.top-left { width:20%; }
+header ul li.top-center { width:60%; text-align:center; }
+header ul li.top-right { width:20%; }
+header ul li img { max-height:70%; }
+
+
+/* ########################### footer ########################### */
+footer { position:fixed; bottom:0; width:100%; }
+footer .copyright { text-align:center; padding:5px; }
+
+
+.list-title { padding:20px 20px 5px; font-size:12px; color:#666; border-bottom:1px solid #ccc; }
+ul.project-list li { border-bottom:1px solid #ccc; background-color:#fff; padding:20px; }
+ul.project-list li dl { display:table; width:100%; font-size:18px; }
+ul.project-list li dl dt.title { display:table-cell; vertical-align:middle; width:68%; }
+ul.project-list li dl dd.date { display:table-cell; vertical-align:middle; width:25%; text-align:right; color:#aaa; }
+ul.project-list li dl dd.arrow { display:table-cell; width:5%; text-align:right;  }
+ul.project-list li dl dt.title .project-name { font-weight:bold; }
+ul.project-list li dl dt.title .project-part { color:#aaa; }
+ul.project-list li dl dd.arrow img { vertical-align:middle; height:18px; margin-bottom:4px; }
+

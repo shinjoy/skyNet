@@ -1,0 +1,212 @@
+@charset "utf-8";
+
+/* ########################### Reset  Style ########################### */
+
+@media screen and (max-width: 479px) {
+	body { background-color:#efeff4; color:#171717; background-image:url('/images/img_skynet_bg.png'); }
+	article.login { width:100%; height:100%; padding-top:50px; } 
+}
+@media screen and (min-width: 480px) {
+	body { background-color:#f4f4ff; color:#171717; }
+	article.login { background-color:#efeff4; width:480px; height:100%; margin:0 auto; padding-top:50px; background-image:url('/images/img_skynet_bg.png'); } 
+	.login-img p { font-size:16px; text-align:center; }
+}
+
+article { padding-bottom:50px; }
+
+/* ########################### main ########################### */
+.login-img { width:50%; margin:0 auto 30px;}
+.login-img img { width:100%; }
+.login-img p { margin-bottom:10px; }
+.login-form .login-input { width:100%; margin-bottom:10px; background-color:#fff; }
+.login-form .login-input input { border:0; font-size:18px; margin:10px 20px; padding:5px; width:80%; }
+.login-form .login-button { width:100%; }
+.login-form .login-check label { display:inline-block; padding:0 0 5px 25px; }
+.login-form .login-button button { background-color:#007aff; color:#fff; font-size:14px; padding:20px 0; width:100%; }
+.login-form .login-tools { text-align:center; margin:30px 0 0; }
+
+/* ########################### header ########################### */
+header { background-color:#f5f5f7; border-bottom:1px solid #b3b3b6; }
+header ul { display:table; width:100%; height:45px; }
+header ul li { display:table-cell; vertical-align:middle }
+header ul li.top-left { width:20%; }
+header ul li.top-center { width:60%; text-align:center; font-weight:bold; font-size:16px; }
+header ul li.top-right { width:20%; text-align:right; }
+header ul li.top-right a { display:inline-block; padding:0 5px 0 0; }
+header ul li.top-right a img { max-height:20px; }
+header ul li img { max-height:50%; vertical-align:bottom; }
+header ul li .top-menu { display:inline-block; margin:0 0 0 -5px; font-size:16px; }
+
+
+/* ########################### footer ########################### */
+footer { position:fixed; bottom:0; width:100%; border-top:1px solid #aaa; background-color:#e1e1f1; }
+footer .copyright { text-align:center; padding:5px; }
+
+/* ########################### list ########################### */
+.list-title { padding:20px 20px 5px; font-size:12px; color:#666; border-bottom:1px solid #ccc; }
+ul.project-list li { border-bottom:1px solid #ccc; background-color:#fff; padding:5px 20px; }
+ul.project-list li dl { display:table; width:100%; font-size:1.4em; }
+ul.project-list li dl dt.title { display:table-cell; vertical-align:middle; width:68%; }
+ul.project-list li dl dt.title .project-name { font-weight:bold; }
+ul.project-list li dl dt.title .project-part { color:#ccc; }
+ul.project-list li dl dt.title .project-period { color:#333; }
+ul.project-list li dl dt.title .info { font-size:0.8em; }
+ul.project-list li dl dd.date { display:table-cell; vertical-align:middle; width:25%; text-align:right; color:#aaa; }
+ul.project-list li dl dd.arrow { display:table-cell; vertical-align:middle; width:30%; text-align:right;  }
+ul.project-list li dl dd.arrow img { vertical-align:middle; height:18px; margin-bottom:4px; }
+
+ul.progress-list li { border-bottom:1px solid #ccc; background-color:#fff; padding:3px 20px; }
+ul.progress-list li dl { display:table; width:100%; font-size:1.3em; }
+ul.progress-list li dl dt.icon img { vertical-align:middle; width:36px; }
+ul.progress-list li dl dt.icon { display:table-cell; vertical-align:middle; width:14%; }
+ul.progress-list li dl dt.title { display:table-cell; vertical-align:middle; width:36%; }
+ul.progress-list li dl dt.title .part-name { font-weight:bold; }
+ul.progress-list li dl dd.progress-cell { display:table-cell; vertical-align:middle; width:28%; text-align:right; color:#aaa; }
+ul.progress-list li dl dd.progress-cell .progress-bar { background-color:#b3b3b6; border-radius:3px; height:6px; width:100%; }
+ul.progress-list li dl dd.progress-cell .progress-bar .progress { background-color:#007aff; border-radius:3px; height:6px; width:0%; }
+ul.progress-list li dl dd.arrow { display:table-cell; vertical-align:middle; width:20%; text-align:right;  }
+ul.progress-list li dl dd.arrow img { vertical-align:middle; height:18px; margin-bottom:4px; }
+ul.progress-list li.empty { padding:30px 0; text-align:center; }
+
+ul.board-list li { border-bottom:1px solid #ccc; background-color:#fff; padding:3px 20px; }
+ul.board-list li dl { display:table; width:100%; font-size:1.3em; }
+ul.board-list li dl dt { display:table-cell; vertical-align:middle; }
+ul.board-list li dl dt img { vertical-align:middle; }
+ul.board-list li dl dt.bullet { width:14%; }
+ul.board-list li dl dt.bullet img { width:36px; }
+ul.board-list li dl dt.title  { width:36%; }
+ul.board-list li dl dt .project-name { font-weight:bold; }
+ul.board-list li dl dt .bug-count, ul.board-list li dl dt .require-count, ul.board-list li dl dt .notice-count { color:#aaa; }
+ul.board-list li dl dd { display:table-cell; vertical-align:middle; width:5%; text-align:left;  }
+ul.board-list li dl dd.info { width:28%; font-size:0.8em; }
+ul.board-list li dl dd.arrow { width:22%; text-align:right; }
+ul.board-list li dl dd.arrow img { vertical-align:middle; height:18px; margin-bottom:4px; }
+
+ul.man-list li { border-bottom:1px solid #ccc; background-color:#fff; padding:3px 20px; }
+ul.man-list li dl { display:table; width:100%; }
+ul.man-list li dl dt { display:table-cell; vertical-align:middle; }
+ul.man-list li dl dt.icon { width:14%; }
+ul.man-list li dl dt.name { width:36%; }
+ul.man-list li dl dt img { vertical-align:middle; width:34px; }
+ul.man-list li dl dt .man-name { font-weight:bold; font-size:1.3em; }
+ul.man-list li dl dt .man-position { color:#aaa; font-size:1.2em; }
+ul.man-list li dl dd { display:table-cell; vertical-align:middle; width:5%; text-align:left;  }
+ul.man-list li dl dd.info { width:28%; font-size:0.8em; }
+ul.man-list li dl dd.arrow { width:22%; text-align:right; }
+ul.man-list li dl dd.arrow img { vertical-align:middle; height:18px; margin-bottom:4px; }
+
+ul.bbs-list { margin-top:10px; }
+ul.bbs-list li { border-bottom:1px solid #ccc; background-color:#fff; padding:5px 10px; }
+ul.bbs-list li.bbs-cell { margin-bottom:5px; }
+.status-box { display:inline-block; font-size:1.2em; font-weight:bold; color:#fff; border-radius:4px; padding:7px 5px; width:29px; }
+.status-box-sm { display:inline-block; font-size:1em; color:#fff; border-radius:2px; padding:0px 2px; }
+.status0 { background-color:#ff0; color:#555; } /*신규*/
+.status1 { background-color:#f40; color:#fff; } /*접수*/
+.status2 { background-color:#2f4; color:#fff; } /*진행*/
+.status3 { background-color:#888; color:#fff; } /*보류*/
+.status4 { background-color:#04f; color:#fff; } /*완료*/
+.status5 { background-color:#ccc; color:#fff; } /*취소*/
+
+ul.comment-list li { border-bottom:1px solid #ccc; background-color:#fafafa; }
+ul.comment-list li.bbs-cell { margin-bottom:10px; }
+ul.comment-list li.empty { padding:30px 0; text-align:center; }
+
+ul.table { display:table; }
+ul.table li { display:table-cell; vertical-align:middle; }
+
+dl.bbs { display:table; padding:5px; width:calc(100% - 10px); }
+dl.bbs dt { display:table-cell; vertical-align:top; width:16%; padding:0px; }
+dl.bbs dt img { vertical-align:middle; padding:0px; }
+dl.bbs dt img.icon { width:36px; }
+dl.bbs dd { display:table-cell; vertical-align:top; width:84%; text-align:left; padding:0px; }
+dl.bbs dd .contents { font-size:16px; }
+dl.bbs dd .info { color:#aaa; font-size:14px; }
+dl.bbs dd img { vertical-align:middle; margin-bottom:4px; }
+
+ul.comment-list { margin-bottom:70px; }
+
+.bbs-btn { background-color:#eee; padding:3px; }
+
+dl.files { display:table; width:100%; font-size:18px; }
+dl.files dt { display:table-cell; vertical-align:top; width:20%; }
+dl.files dt img { vertical-align:middle; padding:10px; }
+dl.files dt img.icon { width:36px; }
+dl.files dd { display:table-cell; vertical-align:top; width:88%; text-align:left; padding-top:8px; }
+dl.files dd .contents { font-size:16px; }
+dl.files dd .info { color:#aaa; font-size:14px; }
+dl.files dd img { vertical-align:middle; margin-bottom:4px; }
+
+.progress-list li { display:none; }
+
+.bbs-box { background-color:#fff; border-bottom:1px solid #aaa; }
+.bbs-menu { text-align:right; padding:0; }
+.comment-edit { position:fixed; bottom:1px; background-color:#f7f7f7; border-top:1px solid #ccc; padding:10px; width:100%; }
+.comment-edit .comment-form { display:table; width:100%; }
+.comment-edit .comment-form li { display:table-cell; vertical-align:top; }
+.comment-edit .comment-form .camera { width:10%; }
+.comment-edit .comment-form .camera img { height:35px; padding-top:3px; }
+.comment-edit .comment-form .input { width:74%; }
+.comment-edit .comment-form .input .text-box { width:calc(100% - 10px); height:35px; padding:3px; background-color:#fff; border-radius:3px; border:1px solid #ddd; }
+.comment-edit .comment-form .input .text-box textarea { width:100%; height:100%; border:0; }
+.comment-edit .comment-form .tool { width:16%; }
+.comment-edit .comment-form .tool button { background-color:#fff; border:1px solid #ccc; border-radius:2px; padding:13px 3px; color:#777; }
+
+.bbs-edit-form { height:100%; }
+.bbs-edit-article { height:calc(100% - 46px); }
+.bbs-edit-article-files { height:100%; }
+.bbs-edit { background-color:#fff; height:calc(100% - 100px); }
+.bbs-edit.no-tab { height:calc(100% - 60px); }
+.bbs-edit .title { padding-bottom:5px; border-bottom:1px solid #ccc; }
+.bbs-edit .title input { border:0; width:calc(100% - 20px); padding:5px 10px; }
+.bbs-edit .contents { height:calc(100% - 115px); }
+.bbs-edit textarea { width:calc(100% - 20px); height:calc(100% - 20px); border:0; padding:10px; }
+.bbs-edit .file-add { background-color:#f7f7f7; padding:10px; height:calc(20% - 20px); overflow-y:auto; }
+.bbs-tools { display:table; width:100%; border-top:1px solid #aaa; background-color:#eee; }
+.bbs-tools li { display:table-cell; width:33.3%; text-align:center; padding:10px; }
+.bbs-tools li img { height:50px; }
+.bbs-tools-pc { padding:18px; background-color:#eee; }
+.bbs .images img { max-width:90%; }
+
+.files { background-color:#fff; }
+
+.btn-hide { width:0; height:0; }
+.del-btn { background-color:#f40; color:#fff; border-radius:2px; padding:2px 3px; text-align:middle; }
+.download-btn { position:fixed; bottom:0; background-color:#007aff; color:#fff; width:100%; text-align:center; padding:10px 0; font-size:18px; }
+
+
+.context { border:1px solid #aaa; width:80px; border-radius:4px; position:absolute; left:20px; top:40px; }
+.context li { border-bottom:1px solid #aaa; text-align:center; padding:5px; background-color:#ff8; cursor:pointer;  }
+.context li:first-child { border-radius:4px 4px 0 0; }
+.context li:last-child { border-bottom:0; border-radius:0 0 4px 4px; }
+.context li:hover { background-color:#ff8;  }
+
+.step-box { display:inline-block; border-radius:4px; color:#fff; font-size:12px; width:40px; height:40px; line-height:10px; text-align:center; margin:0; padding:0; }
+.step-box img { padding:0px !important; }
+.step-box.step1 { background-color:#007aff; }
+.step-box.step2 { background-color:#666666; }
+.step-box.step3 { background-color:#33cc00; }
+
+A.download { display:inline-block; padding:2px 4px; font-size:12px; max-width:100%; word-break:break-all; }
+button.file-delete { background-color:#f40; color:#fff; padding:2px; border-radius:2px; }
+
+/* ########################### search ########################### */
+.search { background-color:#c9c9ce; border-bottom:1px solid #aaa; padding:0px 10px; overflow:hidden; height:0; }
+.search dl { display:table; width:100%; margin:5px 0; }
+.search dl dt { display:table-cell; vertical-align:middle; width:calc(100% - 42px); }
+.search dl dt .search-box { width:95%; background-color:#fff; border-radius:2px; padding:5px; }
+.search dl dt .search-box input { width:100%; border:0; }
+.search dl dd { display:table-cell; vertical-align:middle; width:42px; text-align:right; }
+.search dl dd button { background-color:#fff; border-radius:2px; padding:7px; color:#777; }
+
+/* ########################### tab ########################### */
+.tab { display:table; width:100%; border-bottom:1px solid #aaa; background-color:#fff; height:40px; }
+.tab li { display:table-cell; vertical-align:middle; text-align:center; font-size:14px; font-weight:bold; }
+.tab li.active { border-bottom:3px solid #007aff; color:#007aff; }
+
+.tab2 li { width:50%; }
+.tab3 li { width:33.3%; }
+
+.btn-txt { color:#007aff; padding:5px; font-size:18px; }
+.empty { height:100px; padding-top:80px !important; text-align:center; }
+
+

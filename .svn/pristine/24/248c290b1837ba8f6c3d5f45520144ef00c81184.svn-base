@@ -1,0 +1,129 @@
+package kr.nomad.mars.dao;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.sql.DataSource;
+
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+
+import kr.nomad.mars.dto.ProjectAdmin;
+
+
+public class ProjectAdminDao {
+	
+	private JdbcTemplate jdbcTemplate;
+	public void setDataSource(DataSource dataSource) {
+	    this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
+
+	private RowMapper projectadminMapper = new RowMapper() {
+		public ProjectAdmin mapRow(ResultSet rs, int rowNum) throws SQLException {
+			ProjectAdmin projectadmin = new ProjectAdmin();
+			projectadmin.setProjectAdminSeq(rs.getInt("project_admin_seq"));
+			projectadmin.setProjectSeq(rs.getString("project_seq"));
+			projectadmin.setUserId(rs.getString("user_id"));
+			projectadmin.setProjectAdminRegDate(rs.getString("project_admin_reg_date"));
+			projectadmin.setProjectAdminPart(rs.getString("project_admin_part"));
+			return projectadmin;
+		}
+	};
+	
+
+	private RowMapper VprojectadminMapper = new RowMapper() {
+		public ProjectAdmin mapRow(ResultSet rs, int rowNum) throws SQLException {
+			ProjectAdmin projectadmin = new ProjectAdmin();
+			projectadmin.setProjectAdminSeq(rs.getInt("project_admin_seq"));
+			projectadmin.setProjectSeq(rs.getString("project_seq"));
+			projectadmin.setUserId(rs.getString("user_id"));
+			projectadmin.setProjectAdminRegDate(rs.getString("project_admin_reg_date"));
+			projectadmin.setProjectAdminPart(rs.getString("project_admin_part"));
+			
+			projectadmin.setUserName(rs.getString("user_name"));
+			projectadmin.setUserGroup(rs.getString("user_group"));
+			projectadmin.setUserPosition(rs.getString("user_position"));
+			projectadmin.setUserPhone(rs.getString("user_phone"));
+			projectadmin.setUserLevel(rs.getInt("user_level"));
+			projectadmin.setCompanySeq(rs.getInt("company_seq"));
+			projectadmin.setUserEmail(rs.getString("user_email"));
+			projectadmin.setUserEct(rs.getString("user_ect"));
+			projectadmin.setUserType(rs.getInt("user_type"));
+			return projectadmin;
+		}
+	};
+
+	public void addProjectAdmin(final ProjectAdmin projectadmin) {
+		String query = "" +
+				"INSERT INTO T_NF_PROJECT_ADMIN " +
+				"	( project_seq, user_id, project_admin_reg_date, project_admin_part) " +
+				"VALUES " +
+				"	( ?, ?, getDate(), ?) ";
+		this.jdbcTemplate.update(query, new Object[] {
+			
+			projectadmin.getProjectSeq(),
+			projectadmin.getUserId(),
+		
+			projectadmin.getProjectAdminPart()
+		});
+	}
+
+	public void deleteProjectAdmin(int project_admin_seq) {
+		String query = "DELETE FROM T_NF_PROJECT_ADMIN WHERE project_admin_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] { project_admin_seq });
+	}
+	
+	public void deleteProjectAdminProject(int project_seq) {
+		String query = "DELETE FROM T_NF_PROJECT_ADMIN WHERE project_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] { project_seq });
+	}
+
+	public void updateProjectAdmin(ProjectAdmin projectadmin) { 
+		String query = "" + 
+				"UPDATE T_NF_PROJECT_ADMIN SET " +
+				
+				"	project_seq = ?, " +
+				"	user_id = ?, " +
+			
+				"	project_admin_part = ? " +
+				"WHERE project_admin_seq = ? ";
+		this.jdbcTemplate.update(query, new Object[] {
+			
+			projectadmin.getProjectSeq(),
+			projectadmin.getUserId(),
+		
+			projectadmin.getProjectAdminPart(),
+			projectadmin.getProjectAdminSeq()
+		});
+	}
+/*	//프로젝트 중복검사
+	public int getProjectAdmin(String project_seq,String user_id) {
+		String query = "" + 
+				"SELECT count(*) " +
+				"FROM T_NF_PROJECT_ADMIN " +
+				"WHERE project_seq = ? and user_id = ? ";
+		return this.jdbcTemplate.queryForInt(query, new Object[] { project_seq,user_id });
+	}*/
+
+/*	public ProjectAdmin getProjectAdmin(String project_admin_seq) {
+		String query = "" + 
+				"SELECT project_admin_seq, project_seq, user_id, project_admin_reg_date, project_admin_part " +
+				"FROM T_NF_PROJECT_ADMIN " +
+				"WHERE project_admin_seq = ? ";
+		return (ProjectAdmin)this.jdbcTemplate.queryForObject(query, new Object[] { project_admin_seq }, this.projectadminMapper);
+	}*/
+
+	public List<ProjectAdmin> getProjectAdminList(int projectSeq) {
+		String query = "" +
+				"select * from V_NF_PROJECT_ADMIN where project_seq = ? ";
+		try{
+			return (List<ProjectAdmin>)this.jdbcTemplate.query(query,new Object[] { projectSeq }, this.VprojectadminMapper);
+		}catch(Exception e){
+			return new ArrayList();
+		}
+	}
+	
+	
+}

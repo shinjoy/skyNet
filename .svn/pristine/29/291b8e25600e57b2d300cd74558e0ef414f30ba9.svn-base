@@ -1,0 +1,119 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/m/head.jsp" %>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		bbs.view(pageForm,1);
+	});
+</script>
+
+<style>
+</style>
+
+</head>
+<body>
+
+<form method="post" name="pageForm" onsubmit="return bbs.view(this.form,1); return false;">
+	<input type="hidden" name="bbsSeq" value="${bbsSeq}">
+	<input type="hidden" name="projectSeq" value="${projectSeq}">
+</form>
+
+<header>
+	<ul>
+		<li class="top-left">
+			<a href="javascript:history.back(-1);">
+				<img src="/images/ic_top_back_arrow.png">
+				<span class="top-menu">목록</span>
+			</a>
+		</li>
+		<li class="top-center">
+		</li>
+		<li class="top-right">
+			<!-- 
+			<a href="#">
+				<img src="/images/ic_search.png">
+			</a>
+			<a href="#">
+				<img src="/images/ic_search.png">
+			</a>
+			 -->
+		</li>
+	</ul>
+</header>
+
+<article>
+	
+	<div class="bbs-box">
+		<dl class="bbs">
+			<!-- <dt><img src="/images/ic_list_step_04.png"></dt>
+			<dd>
+				<p class="contents">[버그]버튼을 눌러도 반응이 없어요</p>
+				<p class="images">
+					<img src="/images/img_logo_skynet_top.png"><br>
+					<img src="/images/img_logo_skynet_top.png"><br>
+					<img src="/images/img_logo_skynet_top.png"><br>
+				</p>
+				<p class="info">김영희 | 16.12.30</p>
+				<div class="bbs-menu">
+					<a href="javascript:bbs.menu(0);"><img src="/images/ic_3spot_etc.png"></a>
+				</div>
+			</dd> -->
+		</dl>
+	</div>
+
+	<ul class="comment-list">
+		<!-- <li>
+			<dl class="bbs">
+				<dt><img src="/images/ic_reply.png"></dt>
+				<dd>
+					<p class="contents">[접수]작업이 진행중입니다.</p>
+					<p class="info">임동민 | 16.12.30</p>
+				</dd>
+			</dl>
+		</li>
+		<li>
+			<dl class="bbs">
+				<dt><img src="/images/ic_reply.png"></dt>
+				<dd>
+					<p class="contents">[완료]완료되었습니다.</p>
+					<p class="info">임동민 | 16.12.30</p>
+				</dd>
+			</dl>
+		</li> -->
+	</ul>
+	<div class="paging-block"></div>
+	<div class="comment-edit">
+		<form method="post" name="bbsEditForm">
+		<input type="hidden" name="projectSeq" value="${projectSeq}">
+		<input type="hidden" name="bbsSeq" value="${bbsSeq}">
+		<input type="hidden" name="bbsCommentSeq" value="${bbsCommentSeq}">
+			<ul class="comment-form">
+				<li class="camera">
+					<!-- 
+					<select name="commentStatus">
+					
+						<option value="1">진행중</option>
+						<option value="2">보류</option>
+						<option value="3">완료</option>
+					</select>
+					 -->
+					<img src="/images/ic_camera_01.png">
+				</li>
+			
+				<li class="input">
+					<div class="text-box">
+						<textarea name="bbsContents" placeholder="댓글을 입력해주세요."></textarea>
+					</div>
+				</li>
+				<li class="tool"><button type="button" onclick="bbs.edit(this.form);">전송</button></li>
+			</ul>
+		</form>
+	</div>
+
+<%@ include file="/WEB-INF/views/m/m_footer.jsp"  %>
+
+</article>
+
+</body>
+</html>

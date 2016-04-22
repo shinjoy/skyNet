@@ -1,0 +1,57 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="/WEB-INF/views/common/header.jsp"  %>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+	});
+</script>
+
+<style>
+</style>
+
+</head>
+<body>
+
+<header>
+	<ul>
+		<li class="top-left">
+			<a href="#">
+				<img src="/images/ic_top_back_arrow.png">
+				<span class="top-menu">목록</span>
+			</a>
+		</li>
+		<li class="top-center">
+			리얼체크업
+		</li>
+		<li class="top-right">
+		</li>
+	</ul>
+</header>
+
+<article>
+
+	<dl class="bbs">
+		<dt><img src="/images/ic_inbox.png"></dt>
+		<dd>
+			<p class="contents">[버그]버튼을 눌러도 반응이 없어요</p>
+			<p class="images">
+				<img src="/images/img_logo_skynet_top.png"><br>
+				<img src="/images/img_logo_skynet_top.png"><br>
+				<img src="/images/img_logo_skynet_top.png"><br>
+			</p>
+			<p class="info">김영희 | 16.12.30</p>
+			<div class="bbs-menu">
+				<a href="javascript:files.menu(0);"><img src="/images/ic_3spot_etc.png"></a>
+			</div>
+		</dd>
+	</dl>
+
+	<button type="button" onclick="files.download('');">다운로드</button>
+
+<%@ include file="/WEB-INF/views/m/m_footer.jsp"  %>
+
+</article>
+
+</body>
+</html>

@@ -1,0 +1,443 @@
+var projectAdmin = {
+	getList : function(frm,page) {
+		var param = {
+				page:page,
+				sort:frm.sort.value,
+				colName:frm.colName.value,
+				startDay:frm.startDate.value,
+				endDay:frm.endDate.value,
+				keyword:frm.keyword.value,
+				//status:frm.status.value,
+				companySeq:frm.companySeq.value
+				
+				
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/admin/project_list.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+					var list = json.list;
+					var str = '';
+					str+= ' <table class="list"> ';
+					str+= ' <colgroup> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="*"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= '		<col width="10%"> ';
+					str+= ' </colgroup> ';
+				//	str+= ' <tbody class="rl"> ';
+					if (list.length > 0) {
+						
+						for(var i=0;i<list.length;i++){
+							str+= ' <tr onclick="projectAdmin.projectEditGo('+list[i].projectSeq+');"> ';
+							str+= ' 	<td> '+list[i].companyName + '</td>';
+							str+= ' 	<td> '+list[i].projectName + '</td>';
+							str+= ' 	<td> '+list[i].projectStartDay + '</td>';
+							str+= ' 	<td> '+list[i].projectEndDay + '</td>';
+							str+= ' 	<td> '+list[i].projectStatusTxt + '</td>';
+							str+= ' 	<td> '+list[i].projectRegDate + '</td>';
+							str+= ' </tr> ';
+						}
+						
+					} else {
+						str = '<tr><td class="list-cell empty">프로젝트가 없습니다.</td></tr>';
+					}
+			        $(".contents-list").html(str);
+			        $(".paging-block").html(json.paging);
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+	},
+	listOrder : function(colname, sort) {
+		dataForm.colName.value = colname;
+		dataForm.sort.value = sort;
+		projectAdmin.getList(dataForm, 1);
+		var cSort ="asc";
+		var point ="▼";
+		if(sort=='asc'){
+			cSort="desc";
+			point="▲";
+		}
+		
+		var str = "<button type='button' class='"+colname+"' onclick=\"projectAdmin.listOrder('"+colname+"','"+cSort+"');\">"+point+"</button>";
+		$("#"+colname).html(str);
+		
+		
+	},
+	projectEditGo : function(seq){
+		
+		document.location.href='/admin/admin/project_edit.go?projectSeq='+seq;
+	},
+	projectEdit :function(frm,page){
+		var param = {
+				
+				
+				projectSeq:frm.projectSeq.value,
+				page:page
+				
+				
+			};
+
+			$.ajax({
+			    type:"POST",
+			    url:"/admin/project_edit.go",
+				data:param,
+			    dataType:"json",
+			
+			    success:function(json) {
+					var project = json.project;
+					var list = json.adminList;
+					var userlist = json.userList;
+					var companylist = json.companyList;
+					var todolist = json.todoList;
+					var str = '';
+					str+= '		<dd><input type="hidden" name="projectStatus" value="'+project.projectStatus+'"></dd> ';
+					str+= ' <ul> ';
+					str+= '	<dl> ';
+					str+= '		<dt>업체</dt> ';
+					str+= '		<dd> ';
+					str+='				<select name="companySeq"> ';
+					
+					for(var i=0;i<companylist.length;i++){
+						var txt='';
+						if(companylist[i].companySeq==project.companySeq){
+							txt =' selected="selected"';
+						}
+						
+						str+=' 		<option value="'+companylist[i].companySeq+'"'+ txt +' > '+companylist[i].companyName+'</option> ';
+					}
+					
+				
+					str+='				</select>';
+					str+= '		</dd> ';
+					str+= '	</dl> ';
+					str+= '	<dl> ';
+					str+= '		<dt>프로젝트명</dt> ';
+					str+= '		<dd><input type="text" name="projectName" value="'+project.projectName+'"></dd> ';
+					str+= '	</dl> ';
+					str+= '	<dl> ';
+					str+= '		<dt>기간</dt> ';
+					str+= '		<dd> ';
+					str+= '			<input type="text" name="projectStartDay" class="itext datepicker" value="'+project.projectStartDay+'" placeholder="시작일" style="width:80px;"> ';
+					str+= '			<input type="text" name="projectEndDay" class="itext datepicker" value="'+project.projectEndDay+'" placeholder="종료일" style="width:80px;"> ';
+					str+= '		</dd> ';
+					str+= '	</dl> ';
+					str+= '	<dl> ';
+					str+= '		<dt>프로젝트내용</dt> ';
+					str+= '		<dd><input type="text" name="projectComment" value="'+project.projectComment+'"></dd> ';
+					str+= '	</dl> ';
+					str+= '	<dl> ';
+					str+= '		<dt>개발환경</dt> ';
+					str+= '		<dd><textarea name="projectInfo">'+project.projectInfo+'</textarea></dd> ';
+					str+= '	</dl> ';
+					str+= '	</ul>	 ';
+					str+='         <button type="submit">저장</button>';	
+					if(project.projectSeq!=0){
+						str+='         <button type="button" onclick="projectAdmin.deleteProject('+project.projectSeq+')">삭제</button>';	
+					}
+					var str2='';
+					str2+=' <ul>';
+					str2+= '	<dl> ';
+					str2+= '		<dt>담당자</dt> ';
+					str2+= '		<dd> ';
+					if(list.length>0){
+						str2+= ' <table class="list"> ';
+						str2+= ' <colgroup> ';
+						str2+= '		<col width="20%"> ';
+						str2+= '		<col width="20"> ';
+						str2+= '		<col width="*%"> ';
+						
+						str2+= ' </colgroup> ';
+						str2+= '			<tr> ';
+						str2+= '				<td>PART</td> ';
+						str2+= '				<td>이름</td> ';
+						str2+= '				<td>관리</td> ';
+						str2+= '			</tr> ';
+						for(var i=0;i<list.length;i++){
+							
+							str2+='	<tr> ';
+							str2+='		<td> ';
+							str2+='   <form method="post"  onsubmit="return projectAdmin.AdminEdit(this); return false;">'
+						
+							str2+=' 			<input type="hidden" name="userId" value="'+list[i].userId+'" > ';
+							str2+=' 			<input type="hidden" name="projectAdminSeq" value="'+list[i].projectAdminSeq+'" > ';
+							str2+=' 			<input type="hidden" name="projectSeq" value="'+list[i].projectSeq+'" > ';
+							str2+= ' 			<table class="list"> ';
+							str2+= ' 				<colgroup> ';
+							str2+= '					<col width="20%"> ';
+							str2+= '					<col width="20"> ';
+							str2+= '					<col width="*%"> ';
+							
+							str2+= ' 				</colgroup> ';
+							str2+='  				<tr> ';
+							str2+='  					<td> ';
+							str2+='							<select name="projectAdminPart"> ';
+							str2+=' 							<option value="AND" '+(list[i].projectAdminPart=="AND" ? 'selected="selected"' : '')+'> AND </option> ';
+							str2+=' 							<option value="IOS" ' +(list[i].projectAdminPart=="IOS" ? 'selected="selected"' : '')+'> IOS </option> ';
+							str2+=' 							<option value="WEB" '+(list[i].projectAdminPart=="WEB" ? 'selected="selected"' : '')+'> WEB </option> ';
+							str2+=' 							<option value="SERVER" ' +(list[i].projectAdminPart=="SERVER" ? 'selected="selected"' : '')+'> SERVER </option> ';
+							str2+=' 							<option value="DESIGN" ' +(list[i].projectAdminPart=="DESIGN" ? 'selected="selected"' : '')+'> DESIGN </option> ';
+							str2+='							</select>';
+							str2+='     				 </td> ';
+							str2+='          			 <td> ';
+							str2+='                				 '+list[i].userName;	
+							str2+='          			 </td>';
+							str2+='          			 <td> ';
+							str2+='                			 <button type="submit">수정</button>';	
+							str2+='                 		<button type="button" onclick="projectAdmin.AdminDelete('+list[i].projectAdminSeq+','+list[i].projectSeq+');">삭제</button>';	
+							str2+='         			 </td>';
+							str2+='					</tr> ';
+							str2+='  			</table> '
+							str2+=' 		</form> '
+							str2+='      </td>';	
+							str2+=' </tr>';
+						}
+						str2+= '		</table> ';
+					}
+				
+					str2+= '		</dd> ';
+					str2+= '	</dl> ';
+					str2+='   <form method="post"  onsubmit="return projectAdmin.AdminEdit(this); return false;">'
+					str2+=' 	<input type="hidden" name="projectSeq" value="'+project.projectSeq+'" > ';
+					str2+=' 	<input type="hidden" name="projectAdminSeq" value="0" > ';
+					str2+=' 	<dl> ';
+					str2+=' 		<dt>등록 : </dt> ';
+					str2+=' 		<dd>  ';
+					str2+='			<select name="projectAdminPart"> ';
+					str2+=' 				<option value="AND"> AND </option> ';
+					str2+=' 				<option value="IOS"> IOS </option> ';
+					str2+=' 				<option value="WEB"> WEB </option> ';
+					str2+=' 				<option value="SERVER"> SERVER </option> ';
+					str2+=' 				<option value="DESIGN"> DESIGN </option> ';
+					str2+='			</select>';
+					str2+='			<select name="userId"> ';
+					if(userlist.length>0){
+						
+						for(var i=0;i<userlist.length;i++){
+							str2+=' 	<option value="'+userlist[i].userId+'"> '+userlist[i].userName+' </option> ';
+						}
+						str2+='			</select>';
+					
+					}
+					str2+='     <button type="submit">추가</button> ';
+					str2+='		</dd> ';
+					str2+=' 	</dl> ';
+					str2+='  </form> ';
+					str2+=' </ul>';
+					
+					var todo='';
+					
+					if(todolist.length>0){
+						todo+=' <table> ';
+						for(var i=0;i<todolist.length;i++){
+							
+							todo+=' <tr>';
+							todo+=' 	<td>';
+							todo+=' 		<form>';
+							todo+=' 		</form>';
+							todo+=' 	</td>';
+							todo+='	</tr>';
+						}
+						todo+=' </table> ';
+					}
+					
+										
+					todo+='   <form method="post"  onsubmit="return projectAdmin.TodoEdit(this); return false;">'
+					todo+=' 	<input type="hidden" name="projectSeq" value="'+project.projectSeq+'" > ';
+				
+					todo+=' 	<dl> ';
+					todo+=' 		<dt>일정등록  </dt> ';
+					todo+=' 		<dd>  ';
+				
+					todo+='			<select name="todoPart"> ';
+					todo+=' 				<option value="AND"> AND </option> ';
+					todo+=' 				<option value="IOS"> IOS </option> ';
+					todo+=' 				<option value="WEB"> WEB </option> ';
+					todo+=' 				<option value="SERVER"> SERVER </option> ';
+					todo+=' 				<option value="DESIGN"> DESIGN </option> ';
+					todo+='			</select>';
+					
+					todo+='			<select name="userId"> ';
+					if(userlist.length>0){
+							
+						for(var i=0;i<userlist.length;i++){
+							todo+=' 	<option value="'+userlist[i].userId+'"> '+userlist[i].userName+' </option> ';
+						}
+						todo+='			</select>';
+						
+					}
+					todo+=' 		모듈 : <input type="text" name="module" >  ';
+					todo+=' 		프로세스 : <input type="text" name="process" >  ';
+					todo+=' 		Todo : <input type="text" name="todo" >  ';
+					todo+='			내용 : <input type="text" name="todoComment" >  ';
+				
+					todo+= '		시작일 :	<input type="text" name="todoStartDay" class="itext datepicker"  placeholder="시작일" style="width:80px;"> ';
+					todo+= '		종료일 :	<input type="text" name="todoEndDay" class="itext datepicker"  placeholder="종료일" style="width:80px;"> ';
+					todo+='     <button type="submit">추가</button> ';
+					todo+='		</dd> ';
+				
+					
+					todo+=' 	</dl> ';
+					todo+='  </form> ';
+					
+					
+			        $(".contents-list").html(str);
+			        $(".contents-list2").html(str2);
+			        $(".contents-list3").html(todo);
+			    },
+			    error:function(xhr, status, error) {
+					console.log("err:",xhr, status, error);
+			    },
+			    complete:function(data) {
+					console.log("complete:",data);
+			    }
+			});
+			return false;
+		
+	},
+	projectEditDo : function(frm){
+		var param = {
+				 companySeq : frm.companySeq.value,
+				 projectSeq : frm.projectSeq.value,
+				 projectName : frm.projectName.value,
+				 projectComment : frm.projectComment.value,
+				 projectStartDay : frm.projectStartDay.value,
+				 projectEndDay : frm.projectEndDay.value,
+				 projectInfo : frm.projectInfo.value
+				
+			
+		};
+	
+		
+		$.ajax({
+		    type:"POST",
+		    url:"/admin/project_edit_do.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+		    	alert(json.message);
+		    	if(json.result){
+		    	
+		    		document.location.href='/admin/admin/project_edit.go?projectSeq='+json.seq;
+		    	}
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+		
+	},
+	
+	deleteProject :function(seq){
+		var param = {
+			
+				 projectSeq : seq
+		};
+	
+		
+		$.ajax({
+		    type:"POST",
+		    url:"/admin/project_delete.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+		    	if(json.result){
+		    		
+		    		document.location.href='/admin/admin/project_list.go?companySeq=0';
+		    	}
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+		
+	},
+	AdminEdit : function(frm){
+	
+		var param = {
+				 projectAdminSeq : frm.projectAdminSeq.value,
+				 projectSeq : frm.projectSeq.value,
+				 userId : frm.userId.value,
+				 projectAdminPart : frm.projectAdminPart.value
+		};
+	
+		
+		$.ajax({
+		    type:"POST",
+		    url:"/admin/project_admin_edit_do.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+		    	if(json.result){
+		    		
+		    		document.location.href='/admin/admin/project_edit.go?projectSeq='+frm.projectSeq.value;
+		    	}
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+	},
+	AdminDelete : function(projectAdminSeq,projectSeq){
+		
+		var param = {
+				 projectAdminSeq : projectAdminSeq
+				
+				
+		};
+	
+		
+		$.ajax({
+		    type:"POST",
+		    url:"/admin/project_admin_edit_do.go",
+			data:param,
+		    dataType:"json",
+		
+		    success:function(json) {
+		    	if(json.result){
+		    		
+		    		document.location.href='/admin/admin/project_edit.go?projectSeq='+projectSeq;
+		    	}
+				
+		    },
+		    error:function(xhr, status, error) {
+				console.log("err:",xhr, status, error);
+		    },
+		    complete:function(data) {
+				console.log("complete:",data);
+		    }
+		});
+		return false;
+	}
+};
